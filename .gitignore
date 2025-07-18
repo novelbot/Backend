@@ -1,0 +1,21 @@
+# IDE files
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# Build files
+build/
+.gradle/
+out/
+
+# Log files
+*.log
+
+# Local configuration files
+application-*.properties
+secrets/
+*.env
+
+# Other
+.DS_Store
