@@ -4,6 +4,9 @@
 *.iws
 *.ipr
 
+#vscode files
+.vscode/
+
 # Build files
 build/
 .gradle/
@@ -19,3 +22,4 @@ secrets/
 
 # Other
 .DS_Store
+.DS_Store?
