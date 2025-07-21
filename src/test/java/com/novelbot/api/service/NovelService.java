@@ -1,6 +1,6 @@
 package com.novelbot.api.service;
 
-import com.novelbot.api.dto.NovelDTO;
+import com.novelbot.api.domain.Novel;
 import com.novelbot.api.repository.NovelRepository;
 import org.springframework.stereotype.Service;
 
@@ -13,7 +13,7 @@ public class NovelService {
         this.novelRepository = novelRepository;
     }
 
-    public List<NovelDTO> getNovelList() {
+    public List<Novel> getNovelList() {
         return novelRepository.findAll();
     }
 }
