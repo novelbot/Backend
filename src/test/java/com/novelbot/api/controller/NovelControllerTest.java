@@ -8,7 +8,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
@@ -37,8 +36,8 @@ class NovelControllerTest {
     void getAllNovels_returnsNovelList() throws Exception {
         // given (테스트 데이터 준비)
         novelRepository.saveAll(List.of(
-                new Novel("테스트 소설 1", "작가 1"),
-                new Novel("테스트 소설 2", "작가 2")
+                new Novel(),
+                new Novel()
         ));
 
         // when & then (실행 및 검증)
