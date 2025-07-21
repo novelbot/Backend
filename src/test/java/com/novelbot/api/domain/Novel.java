@@ -1,39 +1,28 @@
 package com.novelbot.api.domain;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
 @Entity
+@Getter
+@Setter
 public class Novel {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long novel_id;
 
     private String title;
 
     private String author;
 
-    // JPA는 기본 생성자를 필요로 합니다.
-    protected Novel() {}
+    private String description;
 
-    public Novel(String title, String author) {
-        this.title = title;
-        this.author = author;
-    }
+    private String genre;
 
-    // Getters
-    public Long getId() {
-        return id;
-    }
+    private String cover_image_url;
 
-    public String getTitle() {
-        return title;
-    }
+    // JPA를 위한 기본 생성자
+    // public Novel() {}
 
-    public String getAuthor() {
-        return author;
-    }
 }
