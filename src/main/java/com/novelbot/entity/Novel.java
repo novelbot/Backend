@@ -1,4 +1,36 @@
 package com.novelbot.entity;
 
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
+import java.util.*;
+
+@Entity
+@Getter
+@Setter
+@Table(name = "NOVELS")
 public class Novel {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "novel_id", nullable = false)
+    private Long novel_id;
+    @Column(name = "title", nullable = false)
+    private String title;
+
+    @Column(name = "author", nullable = false)
+    private String author;
+
+    @Column(name = "description", nullable = false)
+    private String description;
+
+    @Column(name = "genre", nullable = false)
+    private String genre;
+
+    @Column(name = "cover_image_url", nullable = false)
+    private String cover_image_url;
+
+    // 소설 - 에피소드 일대다 매핑 카디널리티
+    @OneToMany(mappedBy = "novel", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Episode> episodes = new ArrayList<>();
+
 }

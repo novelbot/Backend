@@ -1,6 +1,6 @@
 package com.novelbot.api.controller;
 
-import com.novelbot.api.dto.NovelDTO;
+import com.novelbot.api.domain.Novel;
 import com.novelbot.api.service.NovelService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,7 +18,7 @@ public class NovelController {
     }
 
     @GetMapping
-    public List<NovelDTO> getNovels() {
+    public List<Novel> getNovels() {
         return novelService.getNovelList();
     }
 }

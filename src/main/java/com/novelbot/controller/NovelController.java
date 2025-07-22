@@ -1,4 +1,4 @@
 package com.novelbot.controller;
 
-public class DBcontroller {
+public class NovelController {
 }
