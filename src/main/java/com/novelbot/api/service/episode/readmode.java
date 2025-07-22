@@ -1,4 +1,4 @@
-package com.novelbot.service.episode;
+package com.novelbot.api.service.episode;
 
 public class readmode {
 }
