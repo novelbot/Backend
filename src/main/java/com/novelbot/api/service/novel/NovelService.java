@@ -1,7 +1,8 @@
-package com.novelbot.api.service;
+package com.novelbot.api.service.novel;
 
 import com.novelbot.api.domain.Novel;
 import com.novelbot.api.repository.NovelRepository;
+
 import org.springframework.stereotype.Service;
 
 import java.util.List;
