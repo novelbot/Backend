@@ -13,7 +13,7 @@ public class EpisodeService {
     @Autowired
     private EpisodeRepository episodeRepository;
     
-    // public List<Episode> findEpisodesByNovelId(Long novelId) throws IOException {
-    //     return episodeRepository.findByNovel_NovelId(novelId);
-    // }
+    public List<Episode> findEpisodesByNovelId(Long novelId) throws IOException {
+        return episodeRepository.findByNovelNovelId(novelId);
+    }
 }

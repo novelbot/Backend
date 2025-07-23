@@ -13,22 +13,22 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id", nullable = false)
-    private Long user_id;
+    private Long userId;
 
     @Column(name = "user_name", nullable = false)
-    private String user_name;
+    private String userName;
 
     @Column(name = "user_password", nullable = false)
-    private String user_password;
+    private String userPassword;
 
     @Column(name = "user_nickname")
-    private String user_nickname;
+    private String userNickname;
 
     @Column(name = "user_email", nullable = false)
-    private String user_email;
+    private String userEmail;
 
     @Column(name = "created_at", nullable = false, columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP")
-    private java.sql.Timestamp created_at;
+    private java.sql.Timestamp createdAt;
 
     // 구매 - 사용자 관계 일대다 매핑 카디널리티
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
@@ -36,7 +36,7 @@ public class User {
 
     // 사용자 - 독서 진도 관계 일대다 매핑 카디널리티
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<User_reading_process> user_reading_processes = new ArrayList<>();
+    private List<UserReadingProcess> userReadingProcesses = new ArrayList<>();
 
     // 사용자 - 채팅방 진도 관계 일대다 매핑 카디널리티
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)

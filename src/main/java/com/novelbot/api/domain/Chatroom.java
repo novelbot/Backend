@@ -34,7 +34,7 @@ public class Chatroom {
     private Novel novel;
 
     // 채팅방 - 쿼리 일대다 매칭 카디널리티
-    @OneToMany(mappedBy = "chatroom", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "chatRoom", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Queries> queries = new ArrayList<>();
 
 }

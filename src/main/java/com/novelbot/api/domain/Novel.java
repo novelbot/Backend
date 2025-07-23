@@ -13,7 +13,7 @@ public class Novel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "novel_id", nullable = false)
-    private Long novel_id;
+    private Long novelId;
     @Column(name = "title", nullable = false)
     private String title;
 
@@ -27,7 +27,7 @@ public class Novel {
     private String genre;
 
     @Column(name = "cover_image_url", nullable = true)
-    private String cover_image_url;
+    private String coverImageUrl;
 
     // 소설 - 에피소드 일대다 매핑 카디널리티
     @OneToMany(mappedBy = "novel", cascade = CascadeType.ALL, fetch = FetchType.LAZY)

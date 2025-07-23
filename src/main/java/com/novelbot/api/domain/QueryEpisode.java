@@ -8,14 +8,14 @@ import lombok.Setter;
 @Getter
 @Setter
 @Table(name = "EPISODE_QUERY")
-public class Query_Episode {
+public class QueryEpisode {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "query_episode_id", nullable = false)
-    private Long query_episode_id;
+    private Long queryEpisodId;
 
     @Column(name = "episode_number")
-    private int episode_number;
+    private int episodeNumber;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "episode_id", nullable = false)

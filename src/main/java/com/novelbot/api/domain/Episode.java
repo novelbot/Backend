@@ -13,19 +13,19 @@ public class Episode {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "episode_id", nullable = false)
-    private Long episode_id;
+    private Long episodeId;
 
     @Column(name = "episode_title", nullable = false)
-    private String episode_title;
+    private String episodeTitle;
 
     @Column(name = "episode_number", nullable = false)
-    private int episode_number;
+    private int episodeNumber;
 
     @Column(name = "content", nullable = false)
     private String content;
 
     @Column(name = "publication_date", nullable = true)
-    private java.sql.Date publication_date;
+    private java.sql.Date publicationDate;
 
     // 소설 - 에피소드 일대다 매핑 카디널리티
     @ManyToOne(fetch = FetchType.LAZY)
@@ -34,7 +34,7 @@ public class Episode {
 
     // 에피소드 - 독서 진도 일대다 매핑 카디널리티
     @OneToMany(mappedBy = "episode", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<User_reading_process> user_reading_processes = new ArrayList<>();
+    private List<UserReadingProcess> userReadingProcesses = new ArrayList<>();
 
     // 에피소드 - 구매 일대다 매핑 카디널리티
     @OneToMany(mappedBy = "episode", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
