@@ -1,7 +1,7 @@
-package com.novelbot.service.settingNovel;
+package com.novelbot.api.service.settingNovel;
 
-import com.novelbot.entity.Novel;
-import com.novelbot.repository.NovelRepository;
+import com.novelbot.api.domain.Novel;
+import com.novelbot.api.repository.NovelRepository;
 import org.apache.poi.ss.usermodel.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

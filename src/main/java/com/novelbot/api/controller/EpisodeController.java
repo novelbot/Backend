@@ -1,4 +1,4 @@
-package com.novelbot.controller;
+package com.novelbot.api.controller;
 
 import com.novelbot.service.settingEpisode.EpisodeService;
 import org.springframework.beans.factory.annotation.Autowired;

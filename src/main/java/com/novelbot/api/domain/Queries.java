@@ -1,4 +1,4 @@
-package com.novelbot.entity;
+package com.novelbot.api.domain;
 
 import jakarta.persistence.*;
 import lombok.Getter;

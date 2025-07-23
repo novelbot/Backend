@@ -1,5 +1,6 @@
-package com.novelbot.dto;
+package com.novelbot.api.dto;
 
+import com.novelbot.api.domain.Novel;
 import lombok.*;
 
 @Data

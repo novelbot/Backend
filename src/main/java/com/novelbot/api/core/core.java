@@ -1,4 +1,4 @@
-package com.novelbot.core;
+package com.novelbot.api.core;
 
 public class core {
 }

@@ -3,7 +3,7 @@ package com.novelbot.api.dto;
 import lombok.Data;
 
 @Data
-public class UserDTO {
+public class User {
     private Long user_id;
     private Long user_password;
     private String user_name;

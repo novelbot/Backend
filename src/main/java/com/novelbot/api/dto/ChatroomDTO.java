@@ -1,4 +1,4 @@
-package com.novelbot.dto;
+package com.novelbot.api.dto;
 
 import lombok.Data;
 
