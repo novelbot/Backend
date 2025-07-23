@@ -1,6 +1,6 @@
 package com.novelbot.api.controller;
 
-import com.novelbot.service.settingEpisode.EpisodeService;
+import com.novelbot.api.service.settingEpisode.EpisodeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
