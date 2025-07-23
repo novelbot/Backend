@@ -1,41 +1,43 @@
 package com.novelbot.api.domain;
 
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
-
-import java.time.LocalDate;
+import lombok.Setter;
+import java.util.*;
 
 @Entity
 @Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Setter
+@Table(name = "EPISODE")
 public class Episode {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "episode_id")
-    private Long id;
+    @Column(name = "episode_id", nullable = false)
+    private Long episode_id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "novel_id")
-    private Novel novel;
+    @Column(name = "episode_title", nullable = false)
+    private String episode_title;
 
-    private String title;
+    @Column(name = "episode_number", nullable = false)
+    private int episode_number;
 
-    private int episodeNumber;
-
+    @Column(name = "content", nullable = false)
     private String content;
 
-    private LocalDate publicationDate;
+    @Column(name = "publication_date", nullable = false)
+    private java.sql.Date publication_date;
 
-    @Builder
-    public Episode(Novel novel, String title, int episodeNumber, String content, LocalDate publicationDate) {
-        this.novel = novel;
-        this.title = title;
-        this.episodeNumber = episodeNumber;
-        this.content = content;
-        this.publicationDate = publicationDate;
-    }
+    // 소설 - 에피소드 일대다 매핑 카디널리티
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "novel_id", referencedColumnName = "novel_id", nullable = false)
+    private Novel novel;
+
+    // 에피소드 - 독서 진도 일대다 매핑 카디널리티
+    @OneToMany(mappedBy = "episode", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<User_reading_process> user_reading_processes = new ArrayList<>();
+
+    // 에피소드 - 구매 일대다 매핑 카디널리티
+    @OneToMany(mappedBy = "episode", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Purchase> purchases = new ArrayList<>();
+
 }
-
