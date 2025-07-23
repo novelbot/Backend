@@ -4,10 +4,10 @@ import lombok.Data;
 
 @Data
 public class EpisodeDTO {
-    private Long episode_id;
-    private Long novel_id;
-    private String episode_title;
-    private int episode_number;
+    private Long episodeId;
+    private Long novelId;
+    private String episodeTitle;
+    private int episodeNumber;
     private String content;
-    private String publication_date;
+    private String publicationDate;
 }

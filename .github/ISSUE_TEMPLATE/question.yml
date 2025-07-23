@@ -1,0 +1,12 @@
+name: ❓ 질문/기타
+description: 기술적 질문이나 일반적인 요청입니다.
+title: "[Question] "
+labels: [question]
+body:
+  - type: textarea
+    id: question
+    attributes:
+      label: 질문/요청 내용
+      placeholder: '예: 이 미들웨어의 동작 방식이 이해되지 않습니다.'
+    validations:
+      required: true

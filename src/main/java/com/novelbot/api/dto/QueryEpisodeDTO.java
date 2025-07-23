@@ -3,10 +3,10 @@ package com.novelbot.api.dto;
 import lombok.Data;
 
 @Data
-public class ChatroomDTO {
+public class QueryEpisodeDTO {
+    private Long queryId;
     private Long chatId;
     private Long userId;
     private Long novelId;
-    private String chatTitle;
-    private String createdAt;
+    private int episodeNumber;
 }

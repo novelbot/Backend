@@ -1,0 +1,14 @@
+blank_issues_enabled: false
+issue_templates:
+  - name: 🐛 버그 리포트
+    description: API, DB, 서버에서 발생한 문제를 제보합니다.
+    file: bug_report.yml
+  - name: ✨ 기능 요청
+    description: 새로운 백엔드 기능 개발 요청을 등록합니다.
+    file: feature_request.yml
+  - name: 🔧 리팩토링 작업
+    description: 코드 개선, 구조 변경 등의 리팩토링 작업을 기록합니다.
+    file: refactor_task.yml
+  - name: ❓ 질문/기타
+    description: 기술적 질문이나 일반적인 요청입니다.
+    file: question.yml

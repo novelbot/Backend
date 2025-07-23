@@ -15,13 +15,13 @@ public class Chatroom {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "chat_id", nullable = false)
-    private Long chat_id;
+    private Long chatId;
 
     @Column(name = "chat_title")
-    private String chat_title;
+    private String chatTitle;
 
     @Column(name = "created_at", nullable = false, columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP")
-    private java.sql.Timestamp created_at;
+    private java.sql.Timestamp createdAt;
 
     // 사용자 - 채팅방 일대다 매핑 카디널리티
     @ManyToOne(fetch = FetchType.LAZY)

@@ -1,0 +1,25 @@
+name: 🔧 리팩토링 작업
+description: 코드 개선, 구조 변경 등의 리팩토링 작업을 기록합니다.
+title: "[Refactor] "
+labels: [refactor, backend]
+body:
+  - type: input
+    id: scope
+    attributes:
+      label: 대상 모듈/파일
+      placeholder: '예: `user.service.ts`, `auth.middleware.js`'
+
+  - type: textarea
+    id: reason
+    attributes:
+      label: 리팩토링 사유
+      description: 왜 리팩토링이 필요한가요?
+      placeholder: 성능 개선, 유지보수성 향상 등
+    validations:
+      required: true
+
+  - type: textarea
+    id: plan
+    attributes:
+      label: 작업 계획
+      description: 변경될 구조나 방식에 대해 간략히 설명해주세요.

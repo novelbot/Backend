@@ -1,0 +1,42 @@
+name: 🐛 버그 리포트
+description: API, DB, 서버에서 발생한 문제를 제보합니다.
+title: "[BUG] "
+labels: [bug, backend]
+body:
+  - type: input
+    id: api
+    attributes:
+      label: 관련 API 경로
+      placeholder: '예: POST /api/users/login'
+
+  - type: textarea
+    id: description
+    attributes:
+      label: 문제 설명
+      description: 어떤 문제가 발생했는지 자세히 설명해주세요.
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: 재현 절차
+      placeholder: |
+        1. 사용자 로그인
+        2. 인증 토큰 사용
+        3. 오류 발생
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: 로그/에러 메시지
+      placeholder: '예: `500 Internal Server Error: Unexpected token...`'
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: 심각도
+      options:
+        - 🟢 경미함
+        - 🟡 보통
+        - 🔴 치명적
