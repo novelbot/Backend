@@ -24,7 +24,7 @@ public class Episode {
     @Column(name = "content", nullable = false)
     private String content;
 
-    @Column(name = "publication_date", nullable = false)
+    @Column(name = "publication_date", nullable = true)
     private java.sql.Date publication_date;
 
     // 소설 - 에피소드 일대다 매핑 카디널리티

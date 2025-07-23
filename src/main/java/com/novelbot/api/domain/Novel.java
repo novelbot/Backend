@@ -26,7 +26,7 @@ public class Novel {
     @Column(name = "genre", nullable = false)
     private String genre;
 
-    @Column(name = "cover_image_url", nullable = false)
+    @Column(name = "cover_image_url", nullable = true)
     private String cover_image_url;
 
     // 소설 - 에피소드 일대다 매핑 카디널리티

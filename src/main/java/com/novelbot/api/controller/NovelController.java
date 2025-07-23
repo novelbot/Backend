@@ -1,30 +1,28 @@
 package com.novelbot.api.controller;
 
-import com.novelbot.api.service.settingNovel.NovelService;
+import com.novelbot.api.utility.ImportNovel.NovelImport;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 
-@RestController
-@RequestMapping("/api/novels")
+@Component
+@EnableScheduling
 public class NovelController {
-
     @Autowired
-    private NovelService novelService;
+    private NovelImport novelimport;
 
-    @PostMapping("/upload/novels")
-    public String uploadNovels(@RequestParam("src/main/resources/NovelFile") MultipartFile file) {
+    @Scheduled(fixedRate = 10000)
+    public void  readNovelList() {
         try {
-            novelService.importFile(file);
-            return "Novels imported successfully!";
+            novelimport.importFile();
         } catch (IOException e) {
-            return "Error importing novels: " + e.getMessage();
+            throw new RuntimeException(e);
         }
     }
 }
