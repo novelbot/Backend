@@ -20,10 +20,11 @@ public class NovelImport {
 
     public void importFile() throws IOException {
         try {
-            String filePath = "src/main/resources/Novel.xlsx";
+            String filePath = "src/main/resources/NovelFile.xlsx";
             File file = new File(filePath);
             if (!file.exists()) {
                 System.out.println("엑셀 파일이 존재하지 않습니다: " + filePath);
+                return;
             }
 
             FileInputStream fis = new FileInputStream(file);
@@ -45,32 +46,31 @@ public class NovelImport {
                 }
 
                 Novel novel = new Novel();
-                String idValue = getStringCellValue(row.getCell(1));
-                if (idValue == null || idValue.isBlank()) {
-                    System.err.println("행 " + rowNum + ": novel_id가 비어있음");
-                    continue;
+
+                String author = getStringCellValue(row.getCell(3));
+                if (author == null || author.trim().isEmpty()) {
+                    break;
                 }
-                try {
-                    novel.setNovel_id(Long.parseLong(idValue));
-                } catch (NumberFormatException e) {
-                    System.err.println("행 " + rowNum + ": novel_id 형식이 잘못됨 - " + idValue);
-                    continue;
-                }
+
                 novel.setTitle(getStringCellValue(row.getCell(2)));
-                novel.setAuthor(getStringCellValue(row.getCell(3)));
+                novel.setAuthor(author);
                 novel.setDescription(getStringCellValue(row.getCell(4)));
                 novel.setGenre(getStringCellValue(row.getCell(5)));
                 novel.setCover_image_url(getStringCellValue(row.getCell(6)));
+
                 novels.add(novel);
             }
 
-            novelRepository.saveAll(novels);
+            if (!novels.isEmpty()) {
+                novelRepository.saveAll(novels);
+                System.out.println("소설 데이터 " + novels.size() + "건이 성공적으로 DB에 저장되었습니다.");
+            } else {
+                System.out.println("삽입할 소설 데이터가 없습니다.");
+            }
 
             workbook.close();
             fis.close();
-
-            System.out.println("소설 데이터가 성공적으로 DB에 저장되었습니다.");
-        } catch(IOException e){
+        } catch (IOException e) {
             System.out.println("소설 데이터 저장 실패: " + e.getMessage());
         }
     }

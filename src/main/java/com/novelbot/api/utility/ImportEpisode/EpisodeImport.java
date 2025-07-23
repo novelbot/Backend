@@ -30,6 +30,7 @@ public class EpisodeImport {
             File file = new File(filePath);
             if (!file.exists()) {
                 System.out.println("엑셀 파일이 존재하지 않습니다: " + filePath);
+                return;
             }
 
             FileInputStream fis = new FileInputStream(file);
@@ -51,24 +52,12 @@ public class EpisodeImport {
                 }
 
                 Episode episode = new Episode();
-                String idValue = getStringCellValue(row.getCell(1));
-                if (idValue == null || idValue.isBlank()) {
-                    System.err.println("행 " + rowNum + ": episode_id가 비어있음");
-                    continue;
-                }
-                try {
-                    episode.setEpisode_id(Long.parseLong(idValue));
-                } catch (NumberFormatException e) {
-                    System.err.println("행 " + rowNum + ": episode_id 형식이 잘못됨 - " + idValue);
-                    continue;
-                }
 
                 try {
                     Cell novelIdCell = row.getCell(2);
                     String novelIdValue = getStringCellValue(novelIdCell);
                     if (novelIdValue == null || novelIdValue.isBlank()) {
-                        System.err.println("행 " + rowNum + ": novel_id가 비어있음");
-                        continue;
+                        break;
                     }
                     Long novelId = Long.parseLong(novelIdValue);
                     Novel novel = novelRepository.findById(novelId)
@@ -83,6 +72,7 @@ public class EpisodeImport {
                 episode.setEpisode_title(getStringCellValue(row.getCell(4)));
                 episode.setContent(getStringCellValue(row.getCell(5)));
                 episode.setPublication_date(new Date(row.getCell(6).getDateCellValue().getTime()));
+
                 episodes.add(episode);
             }
 
