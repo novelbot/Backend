@@ -8,7 +8,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Table(name = "USER_READING_PROCESS")
-public class User_reading_process {
+public class UserReadingProcess {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "progress_id", nullable = false)
@@ -30,9 +30,9 @@ public class User_reading_process {
     private Novel novel;
 
     @Column(name = "last_read_page")
-    private int last_read_page;
+    private int lastReadPage;
 
     @Column(name = "updated_at", nullable = false, columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP")
-    private java.sql.Timestamp updated_at;
+    private java.sql.Timestamp updatedAt;
 }
 

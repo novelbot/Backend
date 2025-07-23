@@ -56,7 +56,7 @@ public class NovelImport {
                 novel.setAuthor(author);
                 novel.setDescription(getStringCellValue(row.getCell(4)));
                 novel.setGenre(getStringCellValue(row.getCell(5)));
-                novel.setCover_image_url(getStringCellValue(row.getCell(6)));
+                novel.setCoverImageUrl(getStringCellValue(row.getCell(6)));
 
                 novels.add(novel);
             }

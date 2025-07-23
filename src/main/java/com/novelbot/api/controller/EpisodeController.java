@@ -26,13 +26,13 @@ public class EpisodeController {
     @Autowired
     private EpisodeService episodeService;
 
-    @Autowired
-    private EpisodeImport episodeimport;
+    // @Autowired
+    // private EpisodeImport episodeimport;
 
-//    @GetMapping("/novels/{novel_Id}/episodes")
-//    public List<Episode> getEpisodesByNovelId(@PathVariable Long novel_Id) throws IOException {
-//        return episodeService.findEpisodesByNovelId(novel_Id);
-//    }
+   @GetMapping("/novels/{novel_Id}/episodes")
+   public List<Episode> getEpisodesByNovelId(@PathVariable Long novel_Id) throws IOException {
+       return episodeService.findEpisodesByNovelId(novel_Id);
+   }
 
     // @PostMapping("/upload/episodes")
     // public String uploadEpisodes(@RequestParam("file") MultipartFile file) {

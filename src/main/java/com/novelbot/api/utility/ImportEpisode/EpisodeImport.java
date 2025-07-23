@@ -68,10 +68,10 @@ public class EpisodeImport {
                     continue;
                 }
 
-                episode.setEpisode_number((int) row.getCell(3).getNumericCellValue());
-                episode.setEpisode_title(getStringCellValue(row.getCell(4)));
+                episode.setEpisodeNumber((int) row.getCell(3).getNumericCellValue());
+                episode.setEpisodeTitle(getStringCellValue(row.getCell(4)));
                 episode.setContent(getStringCellValue(row.getCell(5)));
-                episode.setPublication_date(new Date(row.getCell(6).getDateCellValue().getTime()));
+                episode.setPublicationDate(new Date(row.getCell(6).getDateCellValue().getTime()));
 
                 episodes.add(episode);
             }

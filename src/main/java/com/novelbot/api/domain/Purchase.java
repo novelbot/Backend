@@ -12,7 +12,7 @@ public class Purchase {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "purchase_id", nullable = false)
-    private Long purchase_id;
+    private Long purchaseId;
 
     // 소설 - 구매 일대다 매핑 카디널리티
     @ManyToOne(fetch = FetchType.LAZY)
@@ -30,5 +30,5 @@ public class Purchase {
     private User user;
 
     @Column(name = "is_purchase", nullable = false)
-    private Boolean is_purchase = false;
+    private Boolean isPurchase = false;
 }
