@@ -1,7 +1,11 @@
 package com.novelbot.api.repository;
 
 import com.novelbot.api.domain.Episode;
+
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface EpisodeRepository extends JpaRepository<Episode, Long> {
+    List<Episode> findByNovel_novel_Id(Long novel_id);
 }

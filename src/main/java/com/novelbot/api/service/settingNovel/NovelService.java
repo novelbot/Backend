@@ -47,6 +47,11 @@ public class NovelService {
 
         workbook.close();
     }
+
+    public List<Novel> findAllNovels() {
+        return novelRepository.findAll();
+    }
+
     private String getStringCellValue(Cell cell) {
         if (cell == null) return null;
         return switch (cell.getCellType()) {

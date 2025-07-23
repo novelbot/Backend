@@ -31,7 +31,7 @@ public class Queries {
 
     // 사용자 - 쿼리 일대다 매핑 카디널리티
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", referencedColumnName = "user_id", nullable = false)
-    private User user;
+    @JoinColumn(name = "chat_id", referencedColumnName = "chat_id", nullable = false)
+    private Chatroom chatroom;
 
 }

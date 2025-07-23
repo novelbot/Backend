@@ -14,7 +14,7 @@ import java.sql.SQLException;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
-@ActiveProfiles("local")
+@ActiveProfiles("test")
 class ApiApplicationTests {
 
 	@Autowired
@@ -31,7 +31,7 @@ class ApiApplicationTests {
 	}
 
 	@Test
-	@DisplayName("local 프로필의 데이터베이스에 연결할 수 있다.")
+	@DisplayName("test 프로필의 데이터베이스에 연결할 수 있다.")
 	void databaseConnectionTest() throws SQLException {
 		assertThat(dataSource).isNotNull();
 		try (Connection conn = dataSource.getConnection()) {
