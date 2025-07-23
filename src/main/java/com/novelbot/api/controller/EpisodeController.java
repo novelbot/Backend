@@ -28,10 +28,9 @@ public class EpisodeController {
     @PostMapping("/upload/episodes")
     public String uploadEpisodes(@RequestParam("file") MultipartFile file) {
         try {
-            episodeService.importFile(file);
-            return "Episodes imported successfully!";
+            episodeimport.importFile();
         } catch (IOException e) {
-            return "Error importing episodes: " + e.getMessage();
+            throw new RuntimeException(e);
         }
     }
 }

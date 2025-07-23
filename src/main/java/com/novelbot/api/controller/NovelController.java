@@ -14,10 +14,9 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.List;
 
-@RestController
-@RequestMapping("/api/novels")
+@Component
+@EnableScheduling
 public class NovelController {
-
     @Autowired
     private NovelService novelService;
 
@@ -26,13 +25,12 @@ public class NovelController {
         return novelService.findAllNovels();
     }
 
-    @PostMapping("/upload/novels")
-    public String uploadNovels(@RequestParam("src/main/resources/NovelFile") MultipartFile file) {
+    @Scheduled(fixedRate = 10000)
+    public void  readNovelList() {
         try {
-            novelService.importFile(file);
-            return "Novels imported successfully!";
+            novelimport.importFile();
         } catch (IOException e) {
-            return "Error importing novels: " + e.getMessage();
+            throw new RuntimeException(e);
         }
     }
 }
