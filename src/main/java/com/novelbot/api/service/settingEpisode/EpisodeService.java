@@ -1,9 +1,9 @@
-package com.novelbot.service.settingEpisode;
+package com.novelbot.api.service.settingEpisode;
 
-import com.novelbot.entity.Episode;
-import com.novelbot.entity.Novel;
-import com.novelbot.repository.EpisodeRepository;
-import com.novelbot.repository.NovelRepository;
+import com.novelbot.api.domain.Episode;
+import com.novelbot.api.domain.Novel;
+import com.novelbot.api.repository.EpisodeRepository;
+import com.novelbot.api.repository.NovelRepository;
 import org.apache.poi.ss.usermodel.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
