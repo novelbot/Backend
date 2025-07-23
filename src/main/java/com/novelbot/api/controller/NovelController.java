@@ -4,6 +4,9 @@ import com.novelbot.api.domain.Novel;
 import com.novelbot.api.service.settingNovel.NovelService;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,12 +28,12 @@ public class NovelController {
         return novelService.findAllNovels();
     }
 
-    @Scheduled(fixedRate = 10000)
-    public void  readNovelList() {
-        try {
-            novelimport.importFile();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
+    // @Scheduled(fixedRate = 10000)
+    // public void  readNovelList() {
+    //     try {
+    //         novelimport.importFile();
+    //     } catch (IOException e) {
+    //         throw new RuntimeException(e);
+    //     }
+    // }
 }

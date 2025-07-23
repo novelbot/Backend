@@ -21,16 +21,16 @@ public class EpisodeController {
     private EpisodeService episodeService;
 
     @GetMapping("/novels/{novel_Id}/episodes")
-    public List<Episode> getEpisodesByNovelId(@PathVariable Long novel_Id) {
+    public List<Episode> getEpisodesByNovelId(@PathVariable Long novel_Id) throws IOException {
         return episodeService.findEpisodesByNovelId(novel_Id);
     }
 
-    @PostMapping("/upload/episodes")
-    public String uploadEpisodes(@RequestParam("file") MultipartFile file) {
-        try {
-            episodeimport.importFile();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
+    // @PostMapping("/upload/episodes")
+    // public String uploadEpisodes(@RequestParam("file") MultipartFile file) {
+    //     try {
+    //         episodeimport.importFile();
+    //     } catch (IOException e) {
+    //         throw new RuntimeException(e);
+    //     }
+    // }
 }
