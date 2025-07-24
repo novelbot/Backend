@@ -8,12 +8,15 @@ import java.util.*;
 @Entity
 @Getter
 @Setter
-@Table(name = "NOVELS")
+@Table(name = "NOVELS", uniqueConstraints = {
+        @UniqueConstraint(columnNames = "title")
+})
 public class Novel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "novel_id", nullable = false)
     private Long novelId;
+
     @Column(name = "title", nullable = false)
     private String title;
 
