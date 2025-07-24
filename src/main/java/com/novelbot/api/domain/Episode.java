@@ -34,7 +34,7 @@ public class Episode {
 
     // 에피소드 - 독서 진도 일대다 매핑 카디널리티
     @OneToMany(mappedBy = "episode", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<UserReadingProcess> userReadingProcesses = new ArrayList<>();
+    private List<UserReadingProgress> userReadingProcesses = new ArrayList<>();
 
     // 에피소드 - 구매 일대다 매핑 카디널리티
     @OneToMany(mappedBy = "episode", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
