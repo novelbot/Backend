@@ -38,3 +38,6 @@
 curl -X POST http://localhost:3000/api/login \
   -H 'Content-Type: application/json' \
   -d '{"email": "test@example.com", "password": "1234"}'
+
+## 🚪 이슈 닫기
+close #13 
