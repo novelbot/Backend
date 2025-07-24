@@ -1,9 +1,12 @@
-package com.novelbot.api.dto;
+package com.novelbot.api.dto.novel;
 
 import lombok.*;
 
-@Data
-public class NovelDTO {
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+public class NovelFetchRequest {
     private Long novelId;
     private String title;
     private String author;

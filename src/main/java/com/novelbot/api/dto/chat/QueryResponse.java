@@ -1,9 +1,12 @@
-package com.novelbot.api.dto;
+package com.novelbot.api.dto.chat;
 
-import lombok.Data;
+import lombok.*;
 
-@Data
-public class QueriesDTO {
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+public class QueryResponse {
     private Long queryId;
     private Long chatId;
     private Long userId;

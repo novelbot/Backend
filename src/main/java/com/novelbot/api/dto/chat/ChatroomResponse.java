@@ -1,11 +1,12 @@
-package com.novelbot.api.dto;
+package com.novelbot.api.dto.chat;
 
-import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
-@Data
-public class ChatroomDTO {
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+public class ChatroomResponse {
     private Long chatId;
     private Long userId;
     private Long novelId;

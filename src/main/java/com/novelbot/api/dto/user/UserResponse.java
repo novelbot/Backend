@@ -1,11 +1,13 @@
-package com.novelbot.api.dto;
+package com.novelbot.api.dto.user;
 
-import lombok.Data;
+import lombok.*;
 
-@Data
-public class User {
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+public class UserResponse {
     private Long userId;
-    private String userPassword;
     private String userName;
     private String userNickname;
     private String userEmail;
