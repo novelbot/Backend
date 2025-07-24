@@ -1,4 +1,4 @@
-package com.novelbot.api.dto;
+package com.novelbot.api.dto.chat;
 
 import lombok.*;
 

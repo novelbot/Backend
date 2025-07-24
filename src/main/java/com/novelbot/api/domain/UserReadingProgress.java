@@ -6,7 +6,7 @@ import lombok.Getter;
 @Entity
 @Getter
 @Table(name = "USER_READING_PROCESS")
-public class UserReadingProcess {
+public class UserReadingProgress {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "progress_id", nullable = false)

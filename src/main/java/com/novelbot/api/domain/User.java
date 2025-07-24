@@ -34,7 +34,7 @@ public class User {
 
     // 사용자 - 독서 진도 관계 일대다 매핑 카디널리티
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<UserReadingProcess> userReadingProcesses = new ArrayList<>();
+    private List<UserReadingProgress> userReadingProcesses = new ArrayList<>();
 
     // 사용자 - 채팅방 진도 관계 일대다 매핑 카디널리티
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
