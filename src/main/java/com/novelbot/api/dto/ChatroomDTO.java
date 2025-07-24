@@ -1,6 +1,8 @@
 package com.novelbot.api.dto;
 
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 @Data
 public class ChatroomDTO {
