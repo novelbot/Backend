@@ -8,7 +8,9 @@ import java.util.*;
 @Entity
 @Getter
 @Setter
-@Table(name = "EPISODE")
+@Table(name = "EPISODE", uniqueConstraints = {
+        @UniqueConstraint(columnNames = "episode_title")
+})
 public class Episode {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
