@@ -1,9 +1,12 @@
-package com.novelbot.api.dto;
+package com.novelbot.api.dto.novel;
 
-import lombok.Data;
+import lombok.*;
 
-@Data
-public class EpisodeDTO {
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+public class EpisodeResponse {
     private Long episodeId;
     private Long novelId;
     private String episodeTitle;
