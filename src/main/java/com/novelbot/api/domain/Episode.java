@@ -15,13 +15,13 @@ public class Episode {
     @Column(name = "episode_id", nullable = false)
     private Long episodeId;
 
-    @Column(name = "episode_title", nullable = false)
+    @Column(name = "episode_title", columnDefinition = "TEXT", nullable = false)
     private String episodeTitle;
 
     @Column(name = "episode_number", nullable = false)
     private int episodeNumber;
 
-    @Column(name = "content", nullable = false)
+    @Column(name = "content", columnDefinition = "TEXT", nullable = false)
     private String content;
 
     @Column(name = "publication_date", nullable = true)

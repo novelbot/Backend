@@ -7,6 +7,7 @@ import com.novelbot.api.repository.NovelRepository;
 import org.apache.poi.ss.usermodel.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -24,6 +25,7 @@ public class EpisodeImport {
     @Autowired
     private NovelRepository novelRepository;
 
+    @Transactional
     public void importFile() throws IOException {
         try {
             String filePath = "src/main/resources/EpisodeFile.xlsx";
@@ -39,59 +41,83 @@ public class EpisodeImport {
 
             Iterator<Row> rowIterator = sheet.iterator();
             if (rowIterator.hasNext()) {
-                rowIterator.next();
+                rowIterator.next(); // 헤더 행 건너뛰기
             }
 
             List<Episode> episodes = new ArrayList<>();
-            int rowNum = 1; // 헤더 제외한 행 번호
+            int rowNum = 1;
             while (rowIterator.hasNext()) {
                 Row row = rowIterator.next();
                 rowNum++;
-                if (row.getCell(0) == null) {
-                    continue;
-                }
+//                if (row.getCell(0) == null) {
+//                    System.err.println("행 " + rowNum + ": 첫 번째 셀이 비어 있습니다.");
+//                    continue;
+//                }
 
                 Episode episode = new Episode();
 
+                // 소설 제목 처리
                 try {
-                    Cell novelIdCell = row.getCell(2);
-                    String novelIdValue = getStringCellValue(novelIdCell);
-                    if (novelIdValue == null || novelIdValue.isBlank()) {
+                    Cell novelTitleCell = row.getCell(2);
+                    String novelTitle = getStringCellValue(novelTitleCell);
+                    if (novelTitle == null || novelTitle.isBlank()) {
+                        System.err.println("행 " + rowNum + ": 소설 제목이 비어 있습니다.");
                         break;
                     }
-                    Long novelId = Long.parseLong(novelIdValue);
-                    Novel novel = novelRepository.findById(novelId)
-                            .orElseThrow(() -> new RuntimeException("소설을 찾을 수 없습니다. ID: " + novelId));
+                    novelTitle = novelTitle.trim();
+                    String finalNovelTitle = novelTitle;
+                    Novel novel = novelRepository.findByTitle(novelTitle)
+                            .orElseThrow(() -> new RuntimeException("소설을 찾을 수 없습니다. 제목: " + finalNovelTitle));
                     episode.setNovel(novel);
                 } catch (Exception e) {
-                    System.err.println("행 " + rowNum + ": novel_id 처리 실패 - " + e.getMessage());
-                    continue;
+                    System.err.println("행 " + rowNum + ": 소설 제목 처리 실패 - " + e.getMessage());
+                    break;
                 }
 
-                episode.setEpisodeNumber((int) row.getCell(3).getNumericCellValue());
+                // 에피소드 번호 처리
+                try {
+                    Cell episodeNumberCell = row.getCell(3);
+                    String episodeNumberStr = getStringCellValue(episodeNumberCell);
+                    if (episodeNumberStr == null || episodeNumberStr.trim().isEmpty()) {
+                        System.err.println("행 " + rowNum + ": 에피소드 번호가 비어 있습니다.");
+                        break;
+                    }
+                    episode.setEpisodeNumber(Integer.parseInt(episodeNumberStr));
+                } catch (NumberFormatException e) {
+                    System.err.println("행 " + rowNum + ": 에피소드 번호 형식이 잘못되었습니다 - " + e.getMessage());
+                    break;
+                }
+
                 episode.setEpisodeTitle(getStringCellValue(row.getCell(4)));
                 episode.setContent(getStringCellValue(row.getCell(5)));
-                episode.setPublicationDate(new Date(row.getCell(6).getDateCellValue().getTime()));
+                try {
+                    episode.setPublicationDate(new Date(row.getCell(6).getDateCellValue().getTime()));
+                } catch (Exception e) {
+                    System.err.println("행 " + rowNum + ": 출간일 처리 실패 - " + e.getMessage());
+                    break;
+                }
 
                 episodes.add(episode);
             }
 
+            System.out.println("저장할 에피소드 수: " + episodes.size()); // 디버깅용
             episodeRepository.saveAll(episodes);
 
             workbook.close();
             fis.close();
 
             System.out.println("에피소드 데이터가 성공적으로 DB에 저장되었습니다.");
-        } catch(IOException e){
+        } catch (IOException e) {
             System.out.println("에피소드 데이터 저장 실패: " + e.getMessage());
+            throw e;
         }
     }
 
     private String getStringCellValue(Cell cell) {
         if (cell == null) return null;
         return switch (cell.getCellType()) {
-            case STRING -> cell.getStringCellValue();
-            case NUMERIC -> String.valueOf(cell.getNumericCellValue());
+            case STRING -> cell.getStringCellValue().trim();
+            case NUMERIC -> String.valueOf((int) cell.getNumericCellValue());
             default -> null;
         };
     }
