@@ -1,6 +1,7 @@
 package com.novelbot.api.controller;
 
 import com.novelbot.api.domain.Episode;
+import com.novelbot.api.service.fetchingEpisode.EpisodeFetchService;
 import com.novelbot.api.service.settingEpisode.EpisodeService;
 import com.novelbot.api.utility.ImportEpisode.EpisodeImport;
 
@@ -26,12 +27,17 @@ public class EpisodeController {
     @Autowired
     private EpisodeService episodeService;
 
-    // @Autowired
-    // private EpisodeImport episodeimport;
+    @Autowired
+    private EpisodeFetchService episodeFetchService;
 
    @GetMapping("/novels/{novel_Id}/episodes")
    public List<Episode> getEpisodesByNovelId(@PathVariable Long novel_Id) throws IOException {
        return episodeService.findEpisodesByNovelId(novel_Id);
+   }
+
+   @GetMapping("/novels/{novelId}/episodes/{episodeNumber}")
+    public String getEpisodeContent(@PathVariable Long novelId, @PathVariable Integer episodeNumber) throws IOException {
+       return episodeFetchService.fetchEpisodeContent(novelId, episodeNumber);
    }
 
     // @PostMapping("/upload/episodes")
