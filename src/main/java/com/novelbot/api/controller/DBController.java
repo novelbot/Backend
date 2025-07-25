@@ -5,11 +5,8 @@ import com.novelbot.api.utility.ImportEpisode.EpisodeImport;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping; // GetMapping 임포트
-import org.springframework.web.bind.annotation.RestController; // RestController 임포트
 
-import java.io.IOException;
-
-@RestController // @Component 대신 @RestController를 사용합니다.
+// @RestController
 public class DBController {
 
     @Autowired
