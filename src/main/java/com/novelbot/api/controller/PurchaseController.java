@@ -1,6 +1,10 @@
+package com.novelbot.api.controller;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import com.novelbot.api.dto.purchase.PurchaseDto;
 
 import java.util.List;
 
@@ -22,7 +26,7 @@ public class PurchaseController {
      * 구매 목록 조회
      */
     @GetMapping
-    public ResponseEntity<List<Purchase>> getPurchaseList() {
+    public ResponseEntity<List<PurchaseDto>> getPurchaseList() {
         // TODO: 현재 사용자의 구매 목록 조회 로직 (Service 호출)
         // 예: List<Purchase> purchases = purchaseService.getPurchaseHistory(userId);
         // return ResponseEntity.ok(purchases);

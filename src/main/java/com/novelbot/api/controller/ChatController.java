@@ -1,6 +1,13 @@
+package com.novelbot.api.controller;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import com.novelbot.api.dto.chat.AnswerResponse;
+import com.novelbot.api.dto.chat.ChatroomCreateRequest;
+import com.novelbot.api.dto.chat.QueryCreateRequest;
+import com.novelbot.api.dto.chat.QueryDto;
 
 import java.util.List;
 
@@ -28,14 +35,8 @@ public class ChatController {
     }
 
     @GetMapping("/chatrooms/{chatId}/queries")
-    public ResponseEntity<List<Query>> getQueries(@PathVariable Integer chatId) {
+    public ResponseEntity<List<QueryDto>> getQueries(@PathVariable Integer chatId) {
         // TODO: 질문 목록 조회 로직
-        return ResponseEntity.ok().build();
-    }
-
-    @GetMapping("/chatrooms/{chatId}/queries/{queryId}")
-    public ResponseEntity<Query> getQuery(@PathVariable Integer chatId, @PathVariable Integer queryId) {
-        // TODO: 질문 내용 조회 로직
         return ResponseEntity.ok().build();
     }
     

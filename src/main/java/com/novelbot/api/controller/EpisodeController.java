@@ -1,6 +1,11 @@
+package com.novelbot.api.controller;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import com.novelbot.api.dto.novel.EpisodeCreateRequest;
+import com.novelbot.api.dto.novel.EpisodeDto;
 
 import java.util.List;
 

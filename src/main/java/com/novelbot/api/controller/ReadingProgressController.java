@@ -1,6 +1,11 @@
+package com.novelbot.api.controller;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import com.novelbot.api.dto.reading.ReadingProgressDto;
+import com.novelbot.api.dto.reading.ReadingProgressRequest;
 
 import java.net.URI;
 

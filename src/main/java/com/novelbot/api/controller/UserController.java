@@ -1,13 +1,17 @@
+package com.novelbot.api.controller;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import com.novelbot.api.dto.user.UserCreateRequest;
 
 @RestController
 @RequestMapping("/users")
 public class UserController {
 
     @PostMapping
-    public ResponseEntity<Void> signup(@RequestBody UserCreate userCreate) {
+    public ResponseEntity<Void> signup(@RequestBody UserCreateRequest userCreate) {
         // TODO: 회원가입 비즈니스 로직 처리 (Service 호출)
         // 예: userService.createUser(userCreate);
         return ResponseEntity.status(HttpStatus.CREATED).build();
