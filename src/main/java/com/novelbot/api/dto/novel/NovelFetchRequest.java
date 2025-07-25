@@ -5,9 +5,7 @@ import lombok.*;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
 public class NovelFetchRequest {
-    private Long novelId;
     private String title;
     private String author;
     private String description;

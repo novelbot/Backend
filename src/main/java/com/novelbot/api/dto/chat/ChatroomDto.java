@@ -6,10 +6,10 @@ import lombok.*;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class ChatroomResponse {
-    private Long chatId;
-    private Long userId;
-    private Long novelId;
+public class ChatroomDto {
+    private int chatId;
+    private int userId;
+    private int novelId;
     private String chatTitle;
     private String createdAt;
 }

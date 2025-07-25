@@ -1,42 +1,40 @@
-package com.novelbot.api.controller;
-
-import com.novelbot.api.domain.Novel;
-import com.novelbot.api.service.searchingNovel.NovelSearchService;
-import com.novelbot.api.service.settingNovel.NovelService;
-import com.novelbot.api.utility.ImportNovel.NovelImport;
-
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Component;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.bind.annotation.*;
 
-import java.io.IOException;
 import java.util.List;
 
-@Component
+@RestController
+@RequestMapping("/novels")
 public class NovelController {
-    @Autowired
-    private NovelService novelService;
 
-    @Autowired
-    private NovelSearchService novelSearchService;
-
-    @Autowired
-    private NovelImport novelimport;
-
-    @GetMapping("/novels")
-    public List<Novel> getAllNovels(){
-        return novelService.findAllNovels();
+    @GetMapping
+    public ResponseEntity<List<Novel>> getNovelList() {
+        // TODO: 소설 목록 조회 로직
+        return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/novels/search")
-    public ResponseEntity<Novel> searchNovel(@RequestParam("title") String title){
-        Novel novel = novelSearchService.searchNovel(title);
-        return ResponseEntity.ok(novel);
+    @PostMapping
+    public ResponseEntity<Void> registerNovel(@RequestBody Novel novel) {
+        // TODO: 소설 등록 로직
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<Novel>> searchNovels(@RequestParam String title) {
+        // TODO: 소설 제목으로 검색하는 로직
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/{novelId}")
+    public ResponseEntity<Void> deleteNovel(@PathVariable Integer novelId) {
+        // TODO: 소설 삭제 로직
+        return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/{novelId}")
+    public ResponseEntity<Void> updateNovel(@PathVariable Integer novelId, @RequestBody Novel novel) {
+        // TODO: 소설 수정 로직
+        return ResponseEntity.ok().build();
     }
 }

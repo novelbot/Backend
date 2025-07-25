@@ -15,7 +15,7 @@ public class Episode {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "episode_id", nullable = false)
-    private Long episodeId;
+    private int episodeId;
 
     @Column(name = "episode_title", columnDefinition = "TEXT", nullable = false)
     private String episodeTitle;

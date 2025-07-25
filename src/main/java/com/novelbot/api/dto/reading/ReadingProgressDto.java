@@ -7,10 +7,10 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class ReadingProgressResponse {
-    private Long episodeId;
-    private Long novelId;
-    private Long userId;
+public class ReadingProgressDto {
+    private int userId;
+    private int novelId;
+    private int episodeId;
     private int lastReadPage;
     private LocalDateTime updatedAt;
 }

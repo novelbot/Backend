@@ -5,9 +5,8 @@ import lombok.*;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
-public class NovelResponse {
-    private Long novelId;
+public class NovelDto {
+    private int novelId;
     private String title;
     private String author;
     private String description;

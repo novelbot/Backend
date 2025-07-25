@@ -1,52 +1,28 @@
-package com.novelbot.api.controller;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
-import com.novelbot.api.domain.Episode;
-import com.novelbot.api.service.fetchingEpisode.EpisodeFetchService;
-import com.novelbot.api.service.settingEpisode.EpisodeService;
-import com.novelbot.api.utility.ImportEpisode.EpisodeImport;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.stereotype.Component;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.io.IOException;
 import java.util.List;
 
-@Component
-@EnableScheduling
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/novels/{novelId}/episodes")
 public class EpisodeController {
-    @Autowired
-    private EpisodeService episodeService;
+  
+    @GetMapping
+    public ResponseEntity<List<EpisodeDto>> getEpisodes(@PathVariable Integer novelId) {
+        // TODO: 특정 소설의 에피소드 목록 조회 로직
+        return ResponseEntity.ok().build();
+    }
 
-    @Autowired
-    private EpisodeFetchService episodeFetchService;
+    @PostMapping
+    public ResponseEntity<Void> registerEpisode(@PathVariable Integer novelId, @RequestBody EpisodeCreateRequest request) {
+        // TODO: 에피소드 등록 로직
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
 
-   @GetMapping("/novels/{novel_Id}/episodes")
-   public List<Episode> getEpisodesByNovelId(@PathVariable Long novel_Id) throws IOException {
-       return episodeService.findEpisodesByNovelId(novel_Id);
-   }
-
-   @GetMapping("/novels/{novelId}/episodes/{episodeNumber}")
-    public String getEpisodeContent(@PathVariable Long novelId, @PathVariable Integer episodeNumber) throws IOException {
-       return episodeFetchService.fetchEpisodeContent(novelId, episodeNumber);
-   }
-
-    // @PostMapping("/upload/episodes")
-    // public String uploadEpisodes(@RequestParam("file") MultipartFile file) {
-    //     try {
-    //         episodeimport.importFile();
-    //     } catch (IOException e) {
-    //         throw new RuntimeException(e);
-    //     }
-    // }
-
+    @GetMapping("/{episodeNumber}")
+    public ResponseEntity<EpisodeDto> getEpisodeContent(@PathVariable Integer novelId, @PathVariable Integer episodeNumber) {
+        // TODO: 웹소설 본문 조회 로직
+        return ResponseEntity.ok().build();
+    }
 }

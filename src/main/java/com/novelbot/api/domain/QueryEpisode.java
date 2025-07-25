@@ -10,7 +10,7 @@ public class QueryEpisode {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "query_episode_id", nullable = false)
-    private Long queryEpisodId;
+    private int queryEpisodId;
 
     @Column(name = "episode_number")
     private int episodeNumber;

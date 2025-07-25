@@ -10,7 +10,7 @@ public class Queries {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "query_id", nullable = false)
-    private Long queryId;
+    private int queryId;
 
     @Column(name = "query_content")
     private String queryContent;
@@ -25,7 +25,7 @@ public class Queries {
     private int pageNumber;
 
     @Column(name = "LLM_id", nullable = false)
-    private Long llmId;
+    private int field;
 
     // 사용자 - 쿼리 일대다 매핑 카디널리티
     @ManyToOne(fetch = FetchType.LAZY)
