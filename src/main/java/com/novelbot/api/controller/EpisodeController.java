@@ -7,7 +7,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/novels/{novelId}/episodes")
 public class EpisodeController {
-
+  
     @GetMapping
     public ResponseEntity<List<EpisodeDto>> getEpisodes(@PathVariable Integer novelId) {
         // TODO: 특정 소설의 에피소드 목록 조회 로직
