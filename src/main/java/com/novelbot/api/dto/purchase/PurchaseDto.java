@@ -5,7 +5,9 @@ import lombok.*;
 @Getter
 @Setter
 @NoArgsConstructor
-public class PurchaseRequest {
+public class PurchaseDto {
     private int episodeId;
     private int novelId;
+    private int userId;
+    private Boolean isPurchase;
 }

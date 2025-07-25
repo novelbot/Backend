@@ -7,6 +7,6 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class AnswerResponse {
-    private Long queryId;
-    private String queryAnswer;
+    private int queryId;
+    private String answer;
 }

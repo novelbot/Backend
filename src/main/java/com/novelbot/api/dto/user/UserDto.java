@@ -6,8 +6,8 @@ import lombok.*;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserResponse {
-    private Long userId;
+public class UserDto {
+    private int userId;
     private String userName;
     private String userNickname;
     private String userEmail;

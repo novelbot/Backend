@@ -5,12 +5,11 @@ import lombok.*;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
-public class EpisodeResponse {
-    private Long episodeId;
-    private Long novelId;
-    private String episodeTitle;
+public class EpisodeDto {
+    private int episodeId;
+    private int novelId;
     private int episodeNumber;
+    private String episodeTitle;
     private String content;
     private String publicationDate;
 }

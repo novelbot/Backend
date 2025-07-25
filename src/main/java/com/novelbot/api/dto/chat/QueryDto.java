@@ -6,14 +6,14 @@ import lombok.*;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class QueryResponse {
-    private Long queryId;
-    private Long chatId;
-    private Long userId;
-    private Long novelId;
+public class QueryDto {
+    private int queryId;
+    private int chatId;
+    private int userId;
+    private int novelId;
     private String queryContent;
     private String queryAnswer;
     private String askedAt;
     private int pageNumber;
-    private Long llmId;
+    private int field;
 }

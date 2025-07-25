@@ -7,8 +7,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ReadingProgressRequest {
-    private Long episodeId;
-    private Long novelId;
-    private Long userId;
+    private int novelId;
+    private int episodeId;
     private int lastReadPage;
 }
