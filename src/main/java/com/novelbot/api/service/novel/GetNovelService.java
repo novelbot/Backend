@@ -1,15 +1,14 @@
-package com.novelbot.api.service.searchingNovel;
+package com.novelbot.api.service.novel;
 
 import com.novelbot.api.domain.Novel;
 import com.novelbot.api.repository.NovelRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Optional;
 
 @Service
-public class NovelSearchService {
+public class GetNovelService {
     @Autowired
     private NovelRepository novelRepository;
 

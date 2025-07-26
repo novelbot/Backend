@@ -1,4 +1,4 @@
-package com.novelbot.api.service.settingEpisode;
+package com.novelbot.api.service.novel;
 
 import com.novelbot.api.domain.Episode;
 import com.novelbot.api.repository.EpisodeRepository;
@@ -9,7 +9,7 @@ import java.io.IOException;
 import java.util.List;
 
 @Service
-public class EpisodeService {
+public class GetEpisodeListService {
     @Autowired
     private EpisodeRepository episodeRepository;
     
