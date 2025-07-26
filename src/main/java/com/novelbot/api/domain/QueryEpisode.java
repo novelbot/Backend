@@ -5,7 +5,7 @@ import lombok.Getter;
 
 @Entity
 @Getter
-@Table(name = "EPISODE_QUERY")
+@Table(name = "episode_query")
 public class QueryEpisode {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -8,7 +8,7 @@ import java.util.*;
 @Entity
 @Getter
 @Setter
-@Table(name = "EPISODE", uniqueConstraints = {
+@Table(name = "episode", uniqueConstraints = {
         @UniqueConstraint(columnNames = "episode_title")
 })
 public class Episode {

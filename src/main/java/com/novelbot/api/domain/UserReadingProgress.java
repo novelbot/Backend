@@ -5,7 +5,7 @@ import lombok.Getter;
 
 @Entity
 @Getter
-@Table(name = "USER_READING_PROCESS")
+@Table(name = "user_reading_progress")
 public class UserReadingProgress {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
