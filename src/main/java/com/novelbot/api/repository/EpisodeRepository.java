@@ -6,6 +6,6 @@ import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface EpisodeRepository extends JpaRepository<Episode, int> {
+public interface EpisodeRepository extends JpaRepository<Episode, Integer> {
     List<Episode> findByNovelNovelId(int novelId);
 }
