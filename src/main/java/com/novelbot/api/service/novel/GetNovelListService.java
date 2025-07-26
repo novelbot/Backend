@@ -1,4 +1,4 @@
-package com.novelbot.api.service.settingNovel;
+package com.novelbot.api.service.novel;
 
 import com.novelbot.api.domain.Novel;
 import com.novelbot.api.repository.NovelRepository;
@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-public class NovelService {
+public class GetNovelListService {
     @Autowired
     private NovelRepository novelRepository;
 
