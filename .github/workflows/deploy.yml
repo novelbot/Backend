@@ -1,9 +1,9 @@
-name: Deploy Spring Boot to GCP Compute Engine
+name: Deploy Spring Boot via systemd
 
 on:
   push:
     branches:
-      - main  # upstream 저장소의 main 브랜치
+      - main
 
 jobs:
   build-and-deploy:
@@ -17,48 +17,36 @@ jobs:
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
-          java-version: '17'  # 프로젝트에 맞게 조정
+          java-version: '17'
 
-      - name: Grant execute permission to Gradle wrapper
-        run: chmod +x ./gradlew
-
-      - name: Build Spring Boot project
+      - name: Build Spring Boot App
         run: ./gradlew clean build -x test
 
-      - name: Upload JAR to GCP VM via SCP
+      - name: Upload .jar to GCE VM
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.GCE_HOST }}
           username: ${{ secrets.GCE_USER }}
           key: ${{ secrets.GCE_SSH_KEY }}
-          port: 22
           source: build/libs/*.jar
-          target: /home/${{ secrets.GCE_USER }}/app
+          target: /home/${{ secrets.GCE_USER }}/app/app.jar
 
-            - name: Restart and Health Check Spring Boot App via SSH
+      - name: Restart Spring Boot Service
         uses: appleboy/ssh-action@v1.0.0
         with:
           host: ${{ secrets.GCE_HOST }}
           username: ${{ secrets.GCE_USER }}
           key: ${{ secrets.GCE_SSH_KEY }}
-          port: 22
           script: |
-            echo "[1/3] Stopping existing app (if any)..."
-            pkill -f 'java.*\.jar' || true
-
-            echo "[2/3] Starting new Spring Boot app..."
-            nohup java -jar /home/${{ secrets.GCE_USER }}/app/*.jar > spring.log 2>&1 &
-
-            echo "[3/3] Waiting for app to become healthy..."
-            for i in {1..10}; do
-              sleep 5
-              STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8080/actuator/health || true)
-              echo "Health check attempt $i - status: $STATUS"
-              if [ "$STATUS" = "200" ]; then
-                echo "✅ Spring Boot is up and healthy."
-                exit 0
-              fi
-            done
-
-            echo "❌ Spring Boot failed to become healthy in time."
-            exit 1
+            sudo systemctl restart springboot-app
+            echo "Waiting for service..."
+            sleep 5
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8080/actuator/health || true)
+            if [ "$STATUS" = "200" ]; then
+              echo "✅ Spring Boot is running."
+              exit 0
+            else
+              echo "❌ Service failed to start properly. Status: $STATUS"
+              sudo journalctl -u springboot-app --no-pager -n 20
+              exit 1
+            fi
