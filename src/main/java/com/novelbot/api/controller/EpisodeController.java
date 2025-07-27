@@ -1,7 +1,7 @@
 package com.novelbot.api.controller;
 
 import com.novelbot.api.dto.novel.EpisodeListDto;
-import com.novelbot.api.service.novel.GetEpisodeService;
+import com.novelbot.api.service.novel.EpisodeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,7 +17,7 @@ import java.util.List;
 public class EpisodeController {
 
     @Autowired
-    private GetEpisodeService episodeFetchService;
+    private EpisodeService episodeFetchService;
 
     @GetMapping
     public ResponseEntity<List<EpisodeListDto>> getEpisodes(@PathVariable Integer novelId) {
