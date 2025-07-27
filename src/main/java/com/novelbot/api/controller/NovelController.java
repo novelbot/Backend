@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.*;
 
 import com.novelbot.api.dto.novel.NovelCreateRequest;
 import com.novelbot.api.dto.novel.NovelDto;
+import com.novelbot.api.service.novel.NovelService;
 
 import java.util.List;
 
@@ -13,33 +14,40 @@ import java.util.List;
 @RequestMapping("/novels")
 public class NovelController {
 
+   
+    private final NovelService novelService;
+
+    public NovelController(NovelService novelService) {
+        this.novelService = novelService;
+    }
+
     @GetMapping
     public ResponseEntity<List<NovelDto>> getNovelList() {
-        // TODO: 소설 목록 조회 로직
-        return ResponseEntity.ok().build();
+        List<NovelDto> novels = novelService.findAllNovels();
+        return ResponseEntity.ok(novels);
     }
 
     @PostMapping
     public ResponseEntity<Void> registerNovel(@RequestBody NovelCreateRequest novel) {
-        // TODO: 소설 등록 로직
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+        novelService.createNovel(novel);
+        return ResponseEntity.status(HttpStatus.CREATED).build(); // 201 Created 응답
     }
 
     @GetMapping("/search")
     public ResponseEntity<List<NovelDto>> searchNovels(@RequestParam String title) {
-        // TODO: 소설 제목으로 검색하는 로직
-        return ResponseEntity.ok().build();
-    }
+        NovelDto searchResult = novelService.searchNovel(title);
+        return ResponseEntity.ok(searchResult); //List 반환 필요
+    } 
 
     @DeleteMapping("/{novelId}")
     public ResponseEntity<Void> deleteNovel(@PathVariable Integer novelId) {
-        // TODO: 소설 삭제 로직
+        novelService.deleteNovel(novelId);
         return ResponseEntity.noContent().build();
     }
 
     @PatchMapping("/{novelId}")
     public ResponseEntity<Void> updateNovel(@PathVariable Integer novelId, @RequestBody NovelCreateRequest novel) {
-        // TODO: 소설 수정 로직
+        novelService.updateNovel(novelId, novel);
         return ResponseEntity.ok().build();
     }
 }
