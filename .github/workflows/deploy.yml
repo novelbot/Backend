@@ -1,12 +1,18 @@
-name: Deploy Spring Boot via systemd
+name: CI/CD for Spring Boot
 
 on:
   push:
     branches:
       - main
+      - develop
+  pull_request:
+    branches:
+      - main
+      - develop
 
 jobs:
-  build-and-deploy:
+  ci:
+    name: CI - Build & Test
     runs-on: ubuntu-latest
 
     steps:
@@ -19,10 +25,37 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Build Spring Boot App
+      - name: Grant Gradle permission
+        run: chmod +x ./gradlew
+
+      - name: Build
+        run: ./gradlew clean build
+
+      - name: Run tests
+        run: ./gradlew test
+
+  cd:
+    name: CD - Deploy to GCP (Upstream Only)
+    runs-on: ubuntu-latest
+    needs: ci
+    if: |
+      github.repository == 'your-org/upstream-repo-name' &&
+      github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Build Spring Boot App (release)
         run: ./gradlew clean build -x test
 
-      - name: Upload .jar to GCE VM
+      - name: Upload .jar to GCP VM
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.GCE_HOST }}
@@ -31,7 +64,7 @@ jobs:
           source: build/libs/*.jar
           target: /home/${{ secrets.GCE_USER }}/app/app.jar
 
-      - name: Restart Spring Boot Service
+      - name: Restart Spring Boot service with systemd
         uses: appleboy/ssh-action@v1.0.0
         with:
           host: ${{ secrets.GCE_HOST }}
@@ -39,14 +72,14 @@ jobs:
           key: ${{ secrets.GCE_SSH_KEY }}
           script: |
             sudo systemctl restart springboot-app
-            echo "Waiting for service..."
+            echo "Waiting for app to become healthy..."
             sleep 5
             STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8080/actuator/health || true)
             if [ "$STATUS" = "200" ]; then
-              echo "✅ Spring Boot is running."
+              echo "✅ App is healthy"
               exit 0
             else
-              echo "❌ Service failed to start properly. Status: $STATUS"
+              echo "❌ App failed health check: $STATUS"
               sudo journalctl -u springboot-app --no-pager -n 20
               exit 1
             fi
