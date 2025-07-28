@@ -23,7 +23,7 @@ public class RegistrationService {
                     HttpStatus.BAD_REQUEST, "Error Code: 400, Bad Request(사용자 이름이 비어있습니다.)"
             );
         }
-        if(userCreateRequest.getUserNickname().trim().isEmpty()){
+        if(userCreateRequest.getUserEmail().trim().isEmpty()){
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST, "Error Code: 400, Bad Request(이메일이 비어있습니다)"
             );
@@ -44,8 +44,7 @@ public class RegistrationService {
             );
         }
 
-        User user = new User();
-        user.update(
+        User user = new User(
                 userCreateRequest.getUserName(), userCreateRequest.getUserNickname(),
                 userCreateRequest.getUserEmail(), passwordEncoder.encode(userCreateRequest.getUserPassword().trim())
         );

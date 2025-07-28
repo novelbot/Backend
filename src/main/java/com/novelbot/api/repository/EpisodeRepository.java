@@ -9,5 +9,6 @@ import java.util.Optional;
 public interface EpisodeRepository extends JpaRepository<Episode, Integer> {
     
     List<Episode> findAllByNovelId(int novelId);
+
     Optional<Episode> findByNovelIdAndEpisodeNumber(int novelId, int episodeNumber);
 }

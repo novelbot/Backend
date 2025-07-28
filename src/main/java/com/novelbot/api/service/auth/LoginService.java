@@ -6,8 +6,8 @@ import com.novelbot.api.dto.auth.LoginResponse;
 import com.novelbot.api.mapper.auth.LoginRequestDtoMapper;
 import com.novelbot.api.repository.UserRepository;
 
-//import io.jsonwebtoken.Jwts;
-//import io.jsonwentoken.SignatureAlgorithm;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -70,19 +70,21 @@ public class LoginService {
 
         LoginResponse response = new LoginResponse(null);
 
-//        try {
-//            return Jwts.builder()
-//                    .setSubject(user.getUserEmail())
-//                    .setIssuedAt(new Date())
-//                    .setExpiration(new Date(System.currentTimeMillis() + jwtExpirationMs))
-//                    .signWith(SignatureAlgorithm.HS512, jwtSecret)
-//                    .compact();
-//        } catch (Exception e) {
-//            throw new ResponseStatusException(
-//                    HttpStatus.INTERNAL_SERVER_ERROR,
-//                    "Error Code: 500, Internal Server Error(JWT 토큰 생성 중 오류 발생: " + e.getMessage() + ")"
-//            );
-//        }
+        try {
+            String token = Jwts.builder()
+                    .setSubject(user.getUserName())
+                    .setIssuedAt(new Date())
+                    .setExpiration(new Date(System.currentTimeMillis() + jwtExpiration))
+                    .signWith(SignatureAlgorithm.HS512, jwtSecret)
+                    .compact();
+            response.setToken(token);
+
+        } catch (Exception e) {
+            throw new ResponseStatusException(
+                    HttpStatus.INTERNAL_SERVER_ERROR,
+                    "Error Code: 500, Internal Server Error(JWT 토큰 생성 중 오류 발생: " + e.getMessage() + ")"
+            );
+        }
 
         return response;
     }

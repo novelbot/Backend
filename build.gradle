@@ -26,6 +26,8 @@ dependencies {
 	implementation 'org.apache.poi:poi:5.2.3'
 	implementation 'org.apache.poi:poi-ooxml:5.2.3'
 	implementation 'org.springframework.boot:spring-boot-starter-security'
+	implementation 'io.jsonwebtoken:jjwt:0.9.1'
+	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 	runtimeOnly 'mysql:mysql-connector-java:8.0.33'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'com.h2database:h2'

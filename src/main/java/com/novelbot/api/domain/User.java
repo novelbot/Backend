@@ -40,13 +40,13 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Chatroom> chatrooms = new ArrayList<>();
 
-    // 회원 가입 시 인스턴스 생성을 위한 메서드
-    public void update(String userName, String userNickname, String userPassword, String userEmail){
+    public User() {}
+
+    public User(String userName, String userPassword, String userNickname, String userEmail){
         this.userName = userName;
-        this.userNickname = userNickname;
         this.userPassword = userPassword;
+        this.userNickname = userNickname;
         this.userEmail = userEmail;
         this.createdAt = new java.sql.Timestamp(System.currentTimeMillis());
     }
-
 }
