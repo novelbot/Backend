@@ -17,10 +17,10 @@ public class LogoutService {
 //    @Autowired
 //    private RedisTemplate<String, String> redisTemplate;
 
-//    @Value("${jwt.secret}")
-//    private String jwtSecret;
-//
-//    private static final String BLACKLIST_KEY = "jwt_blacklist";
+    @Value("${jwt.secret}")
+    private String jwtSecret;
+
+    private static final String BLACKLIST_KEY = "jwt_blacklist";
 
     public void logout(String token) {
         // 입력 유효성 검사
@@ -56,5 +56,6 @@ public class LogoutService {
                     "Error Code: 500, Internal Server Error(로그아웃 처리 중 오류 발생: " + e.getMessage() + ")"
             );
         }
+        return;
     }
 }
