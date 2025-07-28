@@ -81,6 +81,13 @@ jobs:
       - name: Build Spring Boot App (release)
         run: ./gradlew clean build -x test
 
+      - name: Check user on GCP instance
+        run: |
+          gcloud compute ssh ${{ secrets.GCE_INSTANCE_NAME }} \
+          --zone=${{ secrets.GCE_ZONE }} \
+          --tunnel-through-iap \
+          --command="whoami"
+
       - name: Upload .jar to GCP VM via IAP
         run: |
           # Find the executable JAR, excluding the plain one
