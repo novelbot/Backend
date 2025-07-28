@@ -1,3 +1,5 @@
+# .github/workflows/ci-cd.yml
+
 name: CI/CD for Spring Boot
 
 on:
@@ -24,7 +26,7 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '17'
- 
+      
       - name: Setup Gradle Cache
         uses: actions/cache@v4
         with:
@@ -34,17 +36,24 @@ jobs:
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
           restore-keys: |
             ${{ runner.os }}-gradle-
- 
+      
       - name: Grant Gradle permission
         run: chmod +x ./gradlew
- 
+      
       - name: Build with Gradle
         run: ./gradlew clean build
+
+      - name: Upload JAR Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: application-jar
+          path: build/libs/*.jar
 
   cd:
     name: CD - Deploy to GCP via IAP
     runs-on: ubuntu-latest
     needs: ci
+    # main 브랜치에 push 되었을 때만 배포를 실행합니다.
     if: |
       github.repository == 'novelbot/Backend' &&
       github.ref == 'refs/heads/main'
@@ -53,21 +62,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Java
-        uses: actions/setup-java@v4
+      - name: Download JAR Artifact
+        uses: actions/download-artifact@v4
         with:
-          distribution: 'temurin'
-          java-version: '17'
- 
-      - name: Setup Gradle Cache
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-          restore-keys: |
-            ${{ runner.os }}-gradle-
+          name: application-jar
+          path: build/libs
 
       - name: Authenticate to Google Cloud
         id: auth
@@ -78,32 +77,45 @@ jobs:
       - name: Set up Cloud SDK
         uses: 'google-github-actions/setup-gcloud@v2'
 
-      - name: Build Spring Boot App (release)
-        run: ./gradlew clean build -x test
-
       - name: Upload .jar to GCP VM via IAP
         run: |
           # Find the executable JAR, excluding the plain one
           JAR_FILE=$(find build/libs -maxdepth 1 -name "*.jar" ! -name "*-plain.jar")
+          if [ -z "$JAR_FILE" ]; then
+            echo "❌ Executable JAR file not found."
+            exit 1
+          fi
+          echo "Found JAR file: $JAR_FILE"
           gcloud compute scp "$JAR_FILE" \
             ${{ secrets.GCE_INSTANCE_NAME }}:/home/${{ secrets.GCE_USER }}/app/app.jar \
             --zone=${{ secrets.GCE_ZONE }} \
             --tunnel-through-iap
 
-      - name: Restart Spring Boot via IAP SSH
+      - name: Restart Spring Boot and Perform Health Check
         run: |
           gcloud compute ssh ${{ secrets.GCE_INSTANCE_NAME }} \
             --zone=${{ secrets.GCE_ZONE }} \
             --tunnel-through-iap \
             --command="
-              sudo systemctl restart springboot-app && \
-              echo 'Waiting for app...' && sleep 5 && \
-              STATUS=\$(curl -s -o /dev/null -w '%{http_code}' http://localhost:8080/actuator/health || true) && \
-              if [ \"\$STATUS\" = \"200\" ]; then
-                echo '✅ App is healthy'
-              else
-                echo '❌ App failed health check: '\$STATUS
-                sudo journalctl -u springboot-app --no-pager -n 20
-                exit 1
-              fi
+              # 서비스를 재시작합니다.
+              sudo systemctl restart springboot-app
+              
+              echo 'Waiting for app to start...'
+              
+              # 헬스 체크를 최대 60초 (5초 * 12번) 동안 재시도합니다.
+              for i in {1..12}; do
+                STATUS=\$(curl -s -o /dev/null -w '%{http_code}' http://localhost:8080/actuator/health || true)
+                if [ \"\$STATUS\" = \"200\" ]; then
+                  echo '✅ App is healthy.'
+                  exit 0 # 성공 시 스크립트 종료
+                fi
+                echo \"Attempt \$i: App not ready yet (Status: \$STATUS). Retrying in 5 seconds...\"
+                sleep 5
+              done
+
+              # 재시도 후에도 실패하면 최종 실패 처리합니다.
+              echo '❌ App failed health check after multiple retries.'
+              # 실패 시 더 많은 로그(50줄)를 출력하여 디버깅을 돕습니다.
+              sudo journalctl -u springboot-app --no-pager -n 50
+              exit 1
             "
