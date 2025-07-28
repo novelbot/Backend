@@ -14,7 +14,7 @@ import java.sql.SQLException;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
-@ActiveProfiles("test")
+@ActiveProfiles("local")
 class ApiApplicationTests {
 
 	@Autowired

@@ -10,21 +10,21 @@ import com.novelbot.api.dto.user.UserCreateRequest;
 @RequestMapping("/users")
 public class UserController {
 
-    private final UserService userService;
+    // private final UserService userService;
 
-    public UserController(UserService userService) {
-        this.userService = userService;
-    }
+    // public UserController(UserService userService) {
+    //     this.userService = userService;
+    // }
 
-    @PostMapping
-    public ResponseEntity<Void> signup(@RequestBody UserCreateRequest userCreate) {
-        userService.createUser(userCreate);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
-    }
+    // @PostMapping
+    // public ResponseEntity<Void> signup(@RequestBody UserCreateRequest userCreate) {
+    //     userService.createUser(userCreate);
+    //     return ResponseEntity.status(HttpStatus.CREATED).build();
+    // }
 
-    @DeleteMapping("/{userId}")
-    public ResponseEntity<Void> deleteUser(@PathVariable Integer userId) {
-        userService.deleteUser(userId);
-        return ResponseEntity.noContent().build();
-    }
+    // @DeleteMapping("/{userId}")
+    // public ResponseEntity<Void> deleteUser(@PathVariable Integer userId) {
+    //     userService.deleteUser(userId);
+    //     return ResponseEntity.noContent().build();
+    // }
 }

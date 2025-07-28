@@ -9,7 +9,9 @@ import com.novelbot.api.dto.novel.EpisodeCreateRequest;
 import com.novelbot.api.dto.novel.EpisodeDto;
 import com.novelbot.api.service.novel.EpisodeService;
 
+import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/novels/{novelId}/episodes")
@@ -22,20 +24,20 @@ public class EpisodeController {
     }
 
     @GetMapping
-    public ResponseEntity<List<EpisodeListDto>> getEpisodes(@PathVariable Integer novelId) {
-        List<EpisodeListDto> episodes = episodeService.getEpisodesByNovel(novelId);
+    public ResponseEntity<List<EpisodeListDto>> getEpisodes(@PathVariable Integer novelId) throws IOException {
+        List<EpisodeListDto> episodes = episodeService.findAllByNovelId(novelId);
         return ResponseEntity.ok(episodes);
     }
 
-    @PostMapping
-    public ResponseEntity<Void> registerEpisode(@PathVariable Integer novelId, @RequestBody EpisodeCreateRequest request) {
-        episodeService.createEpisode(novelId, request);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
-    }
+    // @PostMapping
+    // public ResponseEntity<Void> registerEpisode(@PathVariable Integer novelId, @RequestBody EpisodeCreateRequest request) {
+    //     episodeService.createEpisode(novelId, request);
+    //     return ResponseEntity.status(HttpStatus.CREATED).build();
+    // }
 
     @GetMapping("/{episodeNumber}")
-    public ResponseEntity<EpisodeDto> getEpisodeContent(@PathVariable Integer novelId, @PathVariable Integer episodeNumber) {
-        EpisodeDto episodeDto = episodeService.getEpisodeContent(novelId, episodeNumber);
+    public ResponseEntity<Optional<EpisodeDto>> getEpisodeContent(@PathVariable Integer novelId, @PathVariable Integer episodeNumber) {
+        Optional<EpisodeDto> episodeDto = episodeService.getEpisodeContent(novelId, episodeNumber);
         return ResponseEntity.ok(episodeDto);
     }
 }

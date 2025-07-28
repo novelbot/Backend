@@ -35,9 +35,7 @@
 예:
 ```bash
 # 로그인 API 테스트
-curl -X POST http://localhost:3000/api/login \
-  -H 'Content-Type: application/json' \
-  -d '{"email": "test@example.com", "password": "1234"}'
+./gradlew bootRun --args='--spring.profiles.active=local'
 
 ## 🚪 이슈 닫기
 close #
