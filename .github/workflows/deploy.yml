@@ -88,7 +88,8 @@ jobs:
           gcloud compute scp "$JAR_FILE" \
             ${{ secrets.GCE_INSTANCE_NAME }}:/home/${{ secrets.GCE_USER }}/app/app.jar \
             --zone=${{ secrets.GCE_ZONE }} \
-            --tunnel-through-iap
+            --tunnel-through-iap \
+            --command="whoami"
 
       - name: Restart Spring Boot via IAP SSH
         run: |
