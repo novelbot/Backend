@@ -28,7 +28,7 @@ public class EpisodeService {
     private EpisodeDtoMapper episodeDtoMapper;
 
     // 웹소설 본문 조회
-    public Optional<Episode> getEpisodeContent(int novel_id, int episode_number) {
+    public Optional<EpisodeDto> getEpisodeContent(int novel_id, int episode_number) {
         if(novel_id <= 0) {
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST, "Error Code: 400, Conflict(유효하지 않은 novelId)"
@@ -50,7 +50,7 @@ public class EpisodeService {
 
         EpisodeDto episodeDto = episodeDtoMapper.toDto(episode);
 
-        return episode;
+        return Optional.ofNullable(episodeDto);
     }
 
     // 특정 소설의 에피소드 목록 조회
