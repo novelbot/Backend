@@ -39,7 +39,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: ci
     if: |
-      github.repository == 'your-org/upstream-repo-name' &&
+      github.repository == 'novelbot/main' &&
       github.ref == 'refs/heads/main'
 
     steps:
