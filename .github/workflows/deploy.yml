@@ -24,18 +24,25 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '17'
-
+ 
+      - name: Setup Gradle Cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+ 
       - name: Grant Gradle permission
         run: chmod +x ./gradlew
-
-      - name: Build
+ 
+      - name: Build with Gradle
         run: ./gradlew clean build
 
-      - name: Run tests
-        run: ./gradlew test
-
   cd:
-    name: CD - Deploy to GCP (Upstream Only)
+    name: CD - Deploy to GCP via IAP
     runs-on: ubuntu-latest
     needs: ci
     if: |
@@ -51,35 +58,52 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '17'
+ 
+      - name: Setup Gradle Cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      - name: Authenticate to Google Cloud
+        id: auth
+        uses: 'google-github-actions/auth@v2'
+        with:
+          credentials_json: '${{ secrets.GCP_SA_KEY }}'
+
+      - name: Set up Cloud SDK
+        uses: 'google-github-actions/setup-gcloud@v2'
 
       - name: Build Spring Boot App (release)
         run: ./gradlew clean build -x test
 
-      - name: Upload .jar to GCP VM
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ secrets.GCE_HOST }}
-          username: ${{ secrets.GCE_USER }}
-          key: ${{ secrets.GCE_SSH_KEY }}
-          source: build/libs/*.jar
-          target: /home/${{ secrets.GCE_USER }}/app/app.jar
+      - name: Upload .jar to GCP VM via IAP
+        run: |
+          # Find the executable JAR, excluding the plain one
+          JAR_FILE=$(find build/libs -maxdepth 1 -name "*.jar" ! -name "*-plain.jar")
+          gcloud compute scp "$JAR_FILE" \
+            ${{ secrets.GCE_INSTANCE_NAME }}:/home/${{ secrets.GCE_USER }}/app/app.jar \
+            --zone=${{ secrets.GCE_ZONE }} \
+            --tunnel-through-iap
 
-      - name: Restart Spring Boot service with systemd
-        uses: appleboy/ssh-action@v1.0.0
-        with:
-          host: ${{ secrets.GCE_HOST }}
-          username: ${{ secrets.GCE_USER }}
-          key: ${{ secrets.GCE_SSH_KEY }}
-          script: |
-            sudo systemctl restart springboot-app
-            echo "Waiting for app to become healthy..."
-            sleep 5
-            STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8080/actuator/health || true)
-            if [ "$STATUS" = "200" ]; then
-              echo "✅ App is healthy"
-              exit 0
-            else
-              echo "❌ App failed health check: $STATUS"
-              sudo journalctl -u springboot-app --no-pager -n 20
-              exit 1
-            fi
+      - name: Restart Spring Boot via IAP SSH
+        run: |
+          gcloud compute ssh ${{ secrets.GCE_INSTANCE_NAME }} \
+            --zone=${{ secrets.GCE_ZONE }} \
+            --tunnel-through-iap \
+            --command="
+              sudo systemctl restart springboot-app && \
+              echo 'Waiting for app...' && sleep 5 && \
+              STATUS=\$(curl -s -o /dev/null -w '%{http_code}' http://localhost:8080/actuator/health || true) && \
+              if [ \"\$STATUS\" = \"200\" ]; then
+                echo '✅ App is healthy'
+              else
+                echo '❌ App failed health check: '\$STATUS
+                sudo journalctl -u springboot-app --no-pager -n 20
+                exit 1
+              fi
+            "
