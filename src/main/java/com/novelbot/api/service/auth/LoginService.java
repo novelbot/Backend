@@ -2,6 +2,7 @@ package com.novelbot.api.service.auth;
 
 import com.novelbot.api.domain.User;
 import com.novelbot.api.dto.auth.LoginRequest;
+import com.novelbot.api.dto.auth.LoginResponse;
 import com.novelbot.api.mapper.auth.LoginRequestDtoMapper;
 import com.novelbot.api.repository.UserRepository;
 
@@ -65,6 +66,8 @@ public class LoginService {
                     "Error Code: 401, Unauthorized(잘못된 비밀번호입니다)"
             );
         }
+
+
 
 //        try {
 //            return Jwts.builder()
