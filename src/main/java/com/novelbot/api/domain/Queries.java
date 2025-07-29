@@ -15,7 +15,7 @@ public class Queries {
     @Column(name = "query_content")
     private String queryContent;
 
-    @Column(name = "query_answer", nullable = false)
+    @Column(name = "query_answer", nullable = true)
     private String queryAnswer;
 
     @Column(name = "asked_at", nullable = false, columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP")
@@ -25,11 +25,21 @@ public class Queries {
     private int pageNumber;
 
     @Column(name = "LLM_id", nullable = false)
-    private int field;
+    private String field;
 
     // 사용자 - 쿼리 일대다 매핑 카디널리티
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "chat_id", referencedColumnName = "chat_id", nullable = false)
     private Chatroom chatRoom;
+
+    public Queries() {}
+
+    public Queries(String queryContent, String queryAnswer, String LLM_id, int chat_id) {
+        this.queryContent = queryContent;
+        this.queryAnswer = queryAnswer;
+        this.askedAt = new java.sql.Timestamp(System.currentTimeMillis());
+        this.field = LLM_id;
+
+    }
 
 }

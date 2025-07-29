@@ -35,4 +35,13 @@ public class Chatroom {
     @OneToMany(mappedBy = "chatRoom", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Queries> queries = new ArrayList<>();
 
+    public Chatroom() {}
+
+    public Chatroom(String chatTitle, User user, Novel novel) {
+        this.chatTitle = chatTitle;
+        this.user = user;
+        this.novel = novel;
+        this.createdAt = new java.sql.Timestamp(System.currentTimeMillis());
+        this.queries = new ArrayList<>();
+    }
 }
