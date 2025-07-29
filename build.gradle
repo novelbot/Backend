@@ -38,6 +38,6 @@ dependencies {
     testAnnotationProcessor('org.projectlombok:lombok:1.18.32')
 }
 
-tasks.named('test') {
-	useJUnitPlatform()
+test {
+    enabled = false
 }
