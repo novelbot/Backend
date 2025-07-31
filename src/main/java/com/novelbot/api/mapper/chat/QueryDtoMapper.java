@@ -9,7 +9,7 @@ public class QueryDtoMapper {
     public QueryDto toDto(Queries queries){
         QueryDto queryDto = new QueryDto();
 
-        queryDto.setQueryId(queries.getQueryId());
+        queryDto.setQueryId(queries.getId());
         queryDto.setChatId(queryDto.getChatId());
         queryDto.setUserId(queryDto.getUserId());
         queryDto.setNovelId(queryDto.getNovelId());

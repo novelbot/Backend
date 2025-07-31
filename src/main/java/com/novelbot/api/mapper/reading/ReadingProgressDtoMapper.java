@@ -9,9 +9,9 @@ public class ReadingProgressDtoMapper {
     ReadingProgressDto toDto(UserReadingProgress userReadingProgress){
         ReadingProgressDto readingProgressDto = new ReadingProgressDto();
 
-        readingProgressDto.setNovelId(userReadingProgress.getNovel().getNovelId());
-        readingProgressDto.setUserId(userReadingProgress.getUser().getUserId());
-        readingProgressDto.setEpisodeId(userReadingProgress.getEpisode().getEpisodeId());
+        readingProgressDto.setNovelId(userReadingProgress.getNovel().getId());
+        readingProgressDto.setUserId(userReadingProgress.getUser().getId());
+        readingProgressDto.setEpisodeId(userReadingProgress.getEpisode().getId());
         readingProgressDto.setLastReadPage(userReadingProgress.getLastReadPage());
         readingProgressDto.setUpdatedAt(userReadingProgress.getUpdatedAt().toLocalDateTime());
 

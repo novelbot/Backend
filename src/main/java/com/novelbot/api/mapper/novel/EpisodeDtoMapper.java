@@ -16,8 +16,8 @@ public class EpisodeDtoMapper {
         Episode episode = optionalepisode.get();
         EpisodeDto episodeDto = new EpisodeDto();
 
-        episodeDto.setEpisodeId(episode.getEpisodeId());
-        episodeDto.setNovelId(episode.getNovel().getNovelId());
+        episodeDto.setEpisodeId(episode.getId());
+        episodeDto.setNovelId(episode.getNovel().getId());
         episodeDto.setEpisodeNumber(episode.getEpisodeNumber());
         episodeDto.setEpisodeTitle(episode.getEpisodeTitle());
         episodeDto.setContent(episode.getContent());

@@ -9,7 +9,7 @@ public class NovelDtoMapper {
     public NovelDto toDto(Novel novel){
         NovelDto novelDto = new NovelDto();
 
-        novelDto.setNovelId(novel.getNovelId());
+        novelDto.setNovelId(novel.getId());
         novelDto.setTitle(novel.getTitle());
         novelDto.setAuthor(novel.getAuthor());
         novelDto.setDescription(novel.getDescription());

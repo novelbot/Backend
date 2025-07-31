@@ -9,7 +9,7 @@ public class UserDtoMapper {
     public UserDto toUserDto(User user) {
         UserDto userDto = new UserDto();
 
-        userDto.setUserId(user.getUserId());
+        userDto.setUserId(user.getId());
         userDto.setUserName(user.getUserName());
         if(user.getUserNickname() != null){
             userDto.setUserNickname(user.getUserNickname());
