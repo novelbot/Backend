@@ -3,6 +3,7 @@ package com.novelbot.api.config;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
@@ -12,18 +13,25 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                // CSRF 보호 비활성화 (Stateless한 REST API에서는 일반적으로 비활성화)
                 .csrf(csrf -> csrf.disable())
-                // 모든 HTTP 요청에 대해 접근을 허용하도록 설정
-                // 향후 API 명세에 따라 특정 경로에 대한 인증/인가 요구사항을 추가해야 합니다.
+                .httpBasic(httpBasic -> httpBasic.disable())
+                .formLogin(formLogin -> formLogin.disable())
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .anyRequest().permitAll());
+                        // 로그인, 회원가입 API는 누구나 접근 가능
+                        .requestMatchers("/auth/login", "/users").permitAll()
+                        // ✅ Github Actions의 Health Check를 위한 경로 허용
+                        .requestMatchers("/actuator/health").permitAll()
+                        // 위에서 지정한 경로 외의 모든 요청은 반드시 인증(로그인) 필요
+                        .anyRequest().authenticated());
+
+        // TODO: 향후 JWT 토큰을 검증하는 필터를 여기에 추가해야 합니다.
 
         return http.build();
     }
 
-    // @Bean
-    // public BCryptPasswordEncoder passwordEncoder() {
-    // return new BCryptPasswordEncoder();
-    // }
+    @Bean
+    public BCryptPasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
 }
