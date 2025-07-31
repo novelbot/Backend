@@ -4,6 +4,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import com.novelbot.api.dto.chat.AnswerResponse;
 import com.novelbot.api.dto.chat.QueryCreateRequest;
 import com.novelbot.api.service.chat.QueryService;
 
@@ -25,13 +26,13 @@ public class QueryController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    @GetMapping("/chatrooms/{chatId}/queries")
-    public ResponseEntity<List<QueryDto>> getQueries(@PathVariable Integer chatId) {
-        // TODO: 질문 목록 조회 로직
-        // 서비스 로직을 통해 `chatId`에 해당하는 질문 목록을 가져옵니다.
-        // 아래 코드는 비어있는 리스트를 JSON 배열 '[]'로 변환하여 반환합니다.
-        return ResponseEntity.ok(Collections.emptyList());
-    }
+    // @GetMapping("/queries")
+    // public ResponseEntity<List<QueryDto>> getQueries(@PathVariable Integer chatId) {
+    //     TODO: 질문 목록 조회 로직
+    //     서비스 로직을 통해 `chatId`에 해당하는 질문 목록을 가져옵니다.
+    //     아래 코드는 비어있는 리스트를 JSON 배열 '[]'로 변환하여 반환합니다.
+    //     return ResponseEntity.ok(Collections.emptyList());
+    // }
 
     @DeleteMapping("/queries/{queryId}")
     public ResponseEntity<Void> deleteQuery(@PathVariable Integer queryId) {
