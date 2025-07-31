@@ -2,6 +2,11 @@
 
 name: CI/CD for Spring Boot
 
+# 워크플로우에 대한 기본 권한 설정 (보안 강화)
+permissions:
+  contents: read # 코드를 checkout 하기 위한 읽기 권한
+  pull-requests: read # PR 트리거를 위한 읽기 권한
+
 on:
   push:
     branches:
@@ -21,27 +26,29 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Java
+      - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: '17'
       
+      # Gradle 버전까지 캐시 키에 포함하여 더 정확한 캐싱 수행
       - name: Setup Gradle Cache
         uses: actions/cache@v4
         with:
           path: |
             ~/.gradle/caches
             ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/gradle-wrapper.properties') }}-${{ hashFiles('**/*.gradle*') }}
           restore-keys: |
-            ${{ runner.os }}-gradle-
+            ${{ runner.os }}-gradle-${{ hashFiles('**/gradle-wrapper.properties') }}-
       
       - name: Grant Gradle permission
         run: chmod +x ./gradlew
       
       - name: Build with Gradle
-        run: ./gradlew clean build
+        # test 결과를 제외하지 않고 빌드하여 CI 단계에서 테스트를 강제합니다.
+        run: ./gradlew build
 
       - name: Upload JAR Artifact
         uses: actions/upload-artifact@v4
@@ -54,19 +61,19 @@ jobs:
     runs-on: ubuntu-latest
     needs: ci
     # main 브랜치에 push 되었을 때만 배포를 실행합니다.
-    if: |
-      github.repository == 'novelbot/Backend' &&
-      github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/main' && github.repository == 'novelbot/Backend'
+
+    permissions:
+      contents: read
+      id-token: write # Google Cloud 인증을 위한 OIDC 토큰 쓰기 권한
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
       - name: Download JAR Artifact
         uses: actions/download-artifact@v4
         with:
           name: application-jar
-          path: build/libs
+          # 아티팩트를 저장할 경로를 명확히 지정
+          path: ./
 
       - name: Authenticate to Google Cloud
         id: auth
@@ -79,37 +86,41 @@ jobs:
 
       - name: Upload .jar to GCP VM via IAP
         run: |
-          # Find the executable JAR, excluding the plain one
-          JAR_FILE=$(find build/libs -maxdepth 1 -name "*.jar" ! -name "*-plain.jar")
-          if [ -z "$JAR_FILE" ]; then
-            echo "❌ Executable JAR file not found."
+          # *-plain.jar을 제외한 실행 가능한 JAR 파일 하나만 있는지 확인
+          JAR_FILES=($(find . -maxdepth 1 -name "*.jar" ! -name "*-plain.jar"))
+          if [ ${#JAR_FILES[@]} -ne 1 ]; then
+            echo "❌ Expected 1 executable JAR file, but found ${#JAR_FILES[@]}."
+            ls -l
             exit 1
           fi
-          echo "Found JAR file: $JAR_FILE"
+          JAR_FILE="${JAR_FILES[0]}"
+          echo "✅ Found JAR file: $JAR_FILE"
+          
           gcloud compute scp "$JAR_FILE" \
-            ${{ secrets.GCE_INSTANCE_NAME }}:/home/${{ secrets.GCE_USER }}/app/app.jar \
-            --zone=${{ secrets.GCE_ZONE }} \
+            "${{ secrets.GCE_INSTANCE_NAME }}:/home/${{ secrets.GCE_USER }}/app/app.jar" \
+            --zone="${{ secrets.GCE_ZONE }}" \
             --tunnel-through-iap
 
-      - name: Restart Spring Boot and Perform Health Check
+      - name: Restart App and Perform Health Check
         run: |
-          gcloud compute ssh ${{ secrets.GCE_INSTANCE_NAME }} \
-            --zone=${{ secrets.GCE_ZONE }} \
+          gcloud compute ssh "${{ secrets.GCE_INSTANCE_NAME }}" \
+            --zone="${{ secrets.GCE_ZONE }}" \
             --tunnel-through-iap \
             --command="
               # 서비스를 재시작합니다.
               sudo systemctl restart springboot-app
               
-              echo 'Waiting for app to start...'
+              echo '--- Waiting for app to start... ---'
               
               # 헬스 체크를 최대 60초 (5초 * 12번) 동안 재시도합니다.
               for i in {1..12}; do
-                STATUS=\$(curl -s -o /dev/null -w '%{http_code}' http://localhost:8080/actuator/health || true)
-                if [ \"\$STATUS\" = \"200\" ]; then
-                  echo '✅ App is healthy.'
-                  exit 0 # 성공 시 스크립트 종료
+                # --fail 옵션을 추가하여 2xx가 아닌 응답을 실패로 간주
+                STATUS=\$(curl --fail -s -o /dev/null -w '%{http_code}' http://localhost:8080/actuator/health)
+                if [ \$? -eq 0 ]; then
+                  echo '✅ App is healthy with status 200.'
+                  exit 0
                 fi
-                echo \"Attempt \$i: App not ready yet (Status: \$STATUS). Retrying in 5 seconds...\"
+                echo \"Attempt \$i: App not ready yet (Status: \$(curl -s -o /dev/null -w '%{http_code}' http://localhost:8080/actuator/health || echo 'N/A')). Retrying in 5 seconds...\"
                 sleep 5
               done
 
