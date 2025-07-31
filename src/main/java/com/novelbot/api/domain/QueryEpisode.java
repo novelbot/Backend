@@ -10,10 +10,10 @@ public class QueryEpisode {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "query_episode_id", nullable = false)
-    private int queryEpisodId;
+    private Integer queryEpisodId;
 
     @Column(name = "episode_number")
-    private int episodeNumber;
+    private Integer episodeNumber;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "episode_id", nullable = false)

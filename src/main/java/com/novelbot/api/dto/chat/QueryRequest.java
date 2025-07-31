@@ -7,7 +7,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class QueryRequest {
-    private int chatId;
+    private Integer chatId;
     private String queryContent;
 }
 

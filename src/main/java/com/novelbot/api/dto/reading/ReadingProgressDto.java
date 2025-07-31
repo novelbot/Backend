@@ -8,9 +8,9 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ReadingProgressDto {
-    private int userId;
-    private int novelId;
-    private int episodeId;
-    private int lastReadPage;
+    private Integer userId;
+    private Integer novelId;
+    private Integer episodeId;
+    private Integer lastReadPage;
     private LocalDateTime updatedAt;
 }

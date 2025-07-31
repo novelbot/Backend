@@ -7,9 +7,9 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ChatroomDto {
-    private int chatId;
-    private int userId;
-    private int novelId;
+    private Integer chatId;
+    private Integer userId;
+    private Integer novelId;
     private String chatTitle;
     private String createdAt;
 }

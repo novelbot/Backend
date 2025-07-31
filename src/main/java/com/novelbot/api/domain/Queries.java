@@ -10,7 +10,7 @@ public class Queries {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "query_id", nullable = false)
-    private int queryId;
+    private Integer queryId;
 
     @Column(name = "query_content")
     private String queryContent;
@@ -22,7 +22,7 @@ public class Queries {
     private java.sql.Timestamp askedAt;
 
     @Column(name = "page_number")
-    private int pageNumber;
+    private Integer pageNumber;
 
     @Column(name = "LLM_id", nullable = false)
     private String field;
@@ -34,7 +34,7 @@ public class Queries {
 
     public Queries() {}
 
-    public Queries(String queryContent, String queryAnswer, String LLM_id, int chat_id) {
+    public Queries(String queryContent, String queryAnswer, String LLM_id, Integer chat_id) {
         this.queryContent = queryContent;
         this.queryAnswer = queryAnswer;
         this.askedAt = new java.sql.Timestamp(System.currentTimeMillis());

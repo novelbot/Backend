@@ -13,7 +13,7 @@ public class Chatroom {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "chat_id", nullable = false)
-    private int chatId;
+    private Integer chatId;
 
     @Column(name = "chat_title")
     private String chatTitle;
