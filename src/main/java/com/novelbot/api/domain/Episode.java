@@ -32,7 +32,7 @@ public class Episode {
     // 소설 - 에피소드 일대다 매핑 카디널리티
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "novel_id", referencedColumnName = "novel_id", nullable = false)
-    private Novel novelId;
+    private int novelId;
 
     // 에피소드 - 독서 진도 일대다 매핑 카디널리티
     @OneToMany(mappedBy = "episode", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
