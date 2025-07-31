@@ -10,7 +10,7 @@ public class Queries {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "query_id", nullable = false)
-    private Integer queryId;
+    private Integer id;
 
     @Column(name = "query_content")
     private String queryContent;

@@ -10,7 +10,7 @@ public class QueryEpisode {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "query_episode_id", nullable = false)
-    private Integer queryEpisodId;
+    private Integer id;
 
     @Column(name = "episode_number")
     private Integer episodeNumber;

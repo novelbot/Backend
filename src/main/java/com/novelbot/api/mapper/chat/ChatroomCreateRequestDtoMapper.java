@@ -9,7 +9,7 @@ public class ChatroomCreateRequestDtoMapper {
     public ChatroomCreateRequest toDto(Chatroom chatroom) {
         ChatroomCreateRequest chatroomCreateRequest = new ChatroomCreateRequest();
 
-        chatroomCreateRequest.setNovelId(chatroom.getNovel().getNovelId());
+        chatroomCreateRequest.setNovelId(chatroom.getNovel().getId());
         chatroomCreateRequest.setChatTitle(chatroom.getChatTitle());
 
         return chatroomCreateRequest;

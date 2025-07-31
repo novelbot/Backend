@@ -9,9 +9,9 @@ public class ChatroomDtoMapper {
     public ChatroomDto toDto(Chatroom chatroom){
         ChatroomDto chatroomDto = new ChatroomDto();
 
-        chatroomDto.setChatId(chatroom.getChatId());
+        chatroomDto.setChatId(chatroom.getId());
         chatroomDto.setUserId(chatroomDto.getUserId());
-        chatroomDto.setNovelId(chatroom.getNovel().getNovelId());
+        chatroomDto.setNovelId(chatroom.getNovel().getId());
         chatroomDto.setChatTitle(chatroom.getChatTitle());
         chatroomDto.setCreatedAt(chatroom.getCreatedAt().toString());
 
