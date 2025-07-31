@@ -30,14 +30,22 @@ public class EpisodeController {
     }
 
     // @PostMapping
-    // public ResponseEntity<Void> registerEpisode(@PathVariable Integer novelId, @RequestBody EpisodeCreateRequest request) {
-    //     episodeService.createEpisode(novelId, request);
-    //     return ResponseEntity.status(HttpStatus.CREATED).build();
+    // public ResponseEntity<Void> registerEpisode(@PathVariable Integer novelId,
+    // @RequestBody EpisodeCreateRequest request) {
+    // episodeService.createEpisode(novelId, request);
+    // return ResponseEntity.status(HttpStatus.CREATED).build();
     // }
 
     @GetMapping("/{episodeNumber}")
-    public ResponseEntity<Optional<EpisodeDto>> getEpisodeContent(@PathVariable Integer novelId, @PathVariable Integer episodeNumber) {
+    public ResponseEntity<EpisodeDto> getEpisodeContent(
+            @PathVariable Integer novelId,
+            @PathVariable Integer episodeNumber) throws IOException {
+
         Optional<EpisodeDto> episodeDto = episodeService.getEpisodeContent(novelId, episodeNumber);
-        return ResponseEntity.ok(episodeDto);
+
+        return episodeDto
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
+
 }
