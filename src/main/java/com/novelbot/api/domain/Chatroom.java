@@ -1,7 +1,9 @@
 package com.novelbot.api.domain;
 
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,6 +12,7 @@ import java.util.Optional;
 @Entity
 @Getter
 @Table(name = "chatroom")
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Chatroom {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
