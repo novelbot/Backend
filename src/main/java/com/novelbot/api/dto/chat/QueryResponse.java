@@ -8,8 +8,8 @@ import lombok.*;
 @AllArgsConstructor
 public class QueryResponse {
     private String queryAnswer;
-    int pageNumber;
-    int chatId;
+    Integer pageNumber;
+    Integer chatId;
 }
 
 // 반환 형식
