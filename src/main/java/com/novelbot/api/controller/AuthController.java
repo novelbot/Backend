@@ -23,17 +23,12 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest loginRequest) {
-        // TODO: 로그인 비즈니스 로직 처리 (Service 호출)
-        // 예: String token = authService.login(loginRequest);
-        // LoginResponse response = new LoginResponse(token);
-        // return ResponseEntity.ok(response);
-        loginService.login(loginRequest);
-        return null; // 임시 반환
+        LoginResponse response = loginService.login(loginRequest);
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/logout")
     public ResponseEntity<Void> logout(String token) {
-        // TODO: 로그아웃 처리 (예: 토큰 무효화)
         logoutService.logout(token);
         return ResponseEntity.noContent().build();
     }
