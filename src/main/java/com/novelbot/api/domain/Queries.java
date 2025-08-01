@@ -24,7 +24,7 @@ public class Queries {
     @Column(name = "page_number")
     private Integer pageNumber;
 
-    @Column(name = "LLM_id", nullable = false)
+    @Column(name = "LLM_id", nullable = true)
     private String field;
 
     // 사용자 - 쿼리 일대다 매핑 카디널리티
@@ -34,12 +34,7 @@ public class Queries {
 
     public Queries() {}
 
-    public Queries(String queryContent, String queryAnswer, String LLM_id, Integer chat_id) {
-        this.queryContent = queryContent;
-        this.queryAnswer = queryAnswer;
-        this.askedAt = new java.sql.Timestamp(System.currentTimeMillis());
-        this.field = LLM_id;
-
+    public Queries(String queryContent, String queryAnswer, String LLM_id, Chatroom chatroom) {
     }
 
 }
