@@ -6,7 +6,7 @@ import lombok.*;
 @Setter
 @NoArgsConstructor
 public class NovelDto {
-    private int novelId;
+    private Integer novelId;
     private String title;
     private String author;
     private String description;

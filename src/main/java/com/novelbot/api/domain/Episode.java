@@ -15,13 +15,13 @@ public class Episode {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "episode_id", nullable = false)
-    private int episodeId;
+    private Integer id;
 
     @Column(name = "episode_title", columnDefinition = "TEXT", nullable = false)
     private String episodeTitle;
 
     @Column(name = "episode_number", nullable = false)
-    private int episodeNumber;
+    private Integer episodeNumber;
 
     @Column(name = "content", columnDefinition = "TEXT", nullable = false)
     private String content;
@@ -32,7 +32,7 @@ public class Episode {
     // 소설 - 에피소드 일대다 매핑 카디널리티
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "novel_id", referencedColumnName = "novel_id", nullable = false)
-    private Novel novelId;
+    private Novel novel;
 
     // 에피소드 - 독서 진도 일대다 매핑 카디널리티
     @OneToMany(mappedBy = "episode", cascade = CascadeType.ALL, fetch = FetchType.LAZY)

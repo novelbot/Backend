@@ -5,22 +5,23 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.novelbot.api.dto.user.UserCreateRequest;
+import com.novelbot.api.service.auth.RegistrationService;
 
 @RestController
 @RequestMapping("/users")
 public class UserController {
 
-    // private final UserService userService;
+    private final RegistrationService registor;
 
-    // public UserController(UserService userService) {
-    //     this.userService = userService;
-    // }
+    public UserController(RegistrationService registor) {
+        this.registor = registor;
+    }
 
-    // @PostMapping
-    // public ResponseEntity<Void> signup(@RequestBody UserCreateRequest userCreate) {
-    //     userService.createUser(userCreate);
-    //     return ResponseEntity.status(HttpStatus.CREATED).build();
-    // }
+    @PostMapping
+    public ResponseEntity<Void> signup(@RequestBody UserCreateRequest userCreate) {
+        registor.registerUser(userCreate);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
 
     // @DeleteMapping("/{userId}")
     // public ResponseEntity<Void> deleteUser(@PathVariable Integer userId) {

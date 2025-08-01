@@ -6,8 +6,8 @@ import lombok.*;
 @Setter
 @NoArgsConstructor
 public class PurchaseDto {
-    private int episodeId;
-    private int novelId;
-    private int userId;
+    private Integer episodeId;
+    private Integer novelId;
+    private Integer userId;
     private Boolean isPurchase;
 }

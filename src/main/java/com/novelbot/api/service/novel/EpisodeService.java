@@ -42,9 +42,9 @@ public class EpisodeService {
         }
 
         Optional<Episode> episode = episodeRepository.findByNovelIdAndEpisodeNumber(novel_id, episode_number);
-        if(episode.isPresent()) {
+        if(episode.isEmpty()) {
             throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST, "Error Code: 400, Conflict(존재하지 않는 novelId)"
+                    HttpStatus.NOT_FOUND, "Error Code: 404, Conflict(존재하지 않는 novelId)"
             );
         }
 
@@ -64,7 +64,7 @@ public class EpisodeService {
         List<Episode> episodeList = episodeRepository.findAllByNovelId(novelId);
         if(episodeList.isEmpty()){
             throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST, "Error Code: 400, Conflict(novelId에 해당하는 에피소드가 존재하지 않음)"
+                    HttpStatus.NOT_FOUND, "Error Code: 404, Conflict(novelId에 해당하는 에피소드가 존재하지 않음)"
             );
         }
 

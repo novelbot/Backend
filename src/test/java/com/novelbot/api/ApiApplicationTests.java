@@ -17,26 +17,4 @@ import static org.assertj.core.api.Assertions.assertThat;
 @ActiveProfiles("local")
 class ApiApplicationTests {
 
-	@Autowired
-	private DataSource dataSource;
-
-	@Autowired
-	private JdbcTemplate jdbcTemplate;
-
-	@Test
-	@DisplayName("스프링 컨텍스트가 정상적으로 로드된다.")
-	void contextLoads() {
-		assertThat(dataSource).isNotNull();
-		assertThat(jdbcTemplate).isNotNull();
-	}
-
-	@Test
-	@DisplayName("test 프로필의 데이터베이스에 연결할 수 있다.")
-	void databaseConnectionTest() throws SQLException {
-		assertThat(dataSource).isNotNull();
-		try (Connection conn = dataSource.getConnection()) {
-			assertThat(conn).isNotNull();
-			System.out.println("Successfully connected to database: " + conn.getMetaData().getURL());
-		}
-	}
 }

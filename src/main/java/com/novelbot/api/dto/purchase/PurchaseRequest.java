@@ -6,6 +6,6 @@ import lombok.*;
 @Setter
 @NoArgsConstructor
 public class PurchaseRequest {
-    private int episodeId;
-    private int novelId;
+    private Integer episodeId;
+    private Integer novelId;
 }

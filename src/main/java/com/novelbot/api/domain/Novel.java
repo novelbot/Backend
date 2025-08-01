@@ -15,7 +15,7 @@ public class Novel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "novel_id", nullable = false)
-    private int novelId;
+    private Integer id;
 
     @Column(name = "title", nullable = false)
     private String title;
@@ -35,5 +35,4 @@ public class Novel {
     // 소설 - 에피소드 일대다 매핑 카디널리티
     @OneToMany(mappedBy = "novel", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Episode> episodes = new ArrayList<>();
-
 }

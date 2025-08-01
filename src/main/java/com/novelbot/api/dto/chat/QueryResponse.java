@@ -12,8 +12,8 @@ public class QueryResponse {
     private String queryAnswer;
     // OpenAI API의 토큰 사용량
     private List<Integer> tokens;
-    int pageNumber;
-    int chatId;
+    Integer pageNumber;
+    Integer chatId;
 }
 
 // 반환 형식

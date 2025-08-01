@@ -8,7 +8,7 @@ import lombok.*;
 @Setter
 @NoArgsConstructor
 public class EpisodeCreateRequest {
-    private int episodeNumber;
+    private Integer episodeNumber;
     private String episodeTitle;
     private String content;
     private LocalDate publicationDate;
