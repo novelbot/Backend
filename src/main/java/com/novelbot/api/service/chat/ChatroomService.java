@@ -4,7 +4,9 @@ import com.novelbot.api.domain.Chatroom;
 import com.novelbot.api.domain.Novel;
 import com.novelbot.api.domain.User;
 import com.novelbot.api.dto.chat.ChatroomCreateRequest;
+import com.novelbot.api.dto.chat.ChatroomDto;
 import com.novelbot.api.mapper.chat.ChatroomCreateRequestDtoMapper;
+import com.novelbot.api.mapper.chat.ChatroomDtoMapper;
 import com.novelbot.api.repository.ChatRepository;
 import com.novelbot.api.repository.NovelRepository;
 import com.novelbot.api.repository.UserRepository;
@@ -17,6 +19,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -36,6 +39,8 @@ public class ChatroomService {
 
     @Value("${jwt.secret}")
     private String jwtSecret;
+    @Autowired
+    private ChatroomDtoMapper chatroomDtoMapper;
 
     // 채팅방 생성
     public void createChatroom(ChatroomCreateRequest chatroomCreateRequest, String token) {
@@ -51,7 +56,7 @@ public class ChatroomService {
         }
         if (token == null || token.trim().isEmpty()) {
             throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST, "Error Code: 400, Bad Request(토큰이 비어 있습니다)"
+                    HttpStatus.UNAUTHORIZED, "Error Code: 401, Unauthorized(토큰이 비어 있습니다)"
             );
         }
 
@@ -99,8 +104,13 @@ public class ChatroomService {
     }
 
     // 채팅방 조회
-    public List<Chatroom> getAllChatrooms() {
-        return chatRepository.findAll();
+    public List<ChatroomDto> getAllChatrooms() {
+        List<Chatroom> chatrooms = chatRepository.findAll();
+        List<ChatroomDto> chatroomDtos = new ArrayList<>();
+        for(Chatroom chatroom : chatrooms){
+            chatroomDtos.add(chatroomDtoMapper.toDto(chatroom));
+        }
+        return chatroomDtos;
     }
 
       // 채팅방 token으로 조회하기..?
