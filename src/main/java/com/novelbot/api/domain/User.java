@@ -28,6 +28,8 @@ public class User {
     @Column(name = "created_at", nullable = false, columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP")
     private java.sql.Timestamp createdAt;
 
+    @Column(name = "user_role", nullable = false)
+
     // 구매 - 사용자 관계 일대다 매핑 카디널리티
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Purchase> purchases = new ArrayList<>();
