@@ -20,8 +20,6 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .anyRequest().permitAll());
 
-        // TODO: 향후 JWT 토큰을 검증하는 필터를 여기에 추가해야 합니다.
-
         return http.build();
     }
 

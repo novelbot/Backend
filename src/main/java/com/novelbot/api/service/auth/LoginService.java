@@ -1,22 +1,17 @@
 package com.novelbot.api.service.auth;
 
+import com.novelbot.api.config.JwtTokenProvider;
 import com.novelbot.api.domain.User;
 import com.novelbot.api.dto.auth.LoginRequest;
 import com.novelbot.api.dto.auth.LoginResponse;
-import com.novelbot.api.mapper.auth.LoginRequestDtoMapper;
 import com.novelbot.api.repository.UserRepository;
 
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
-
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.Date;
 import java.util.Optional;
 
 @Service
@@ -25,18 +20,10 @@ public class LoginService {
     private UserRepository userRepository;
 
     @Autowired
-    private BCryptPasswordEncoder bCryptPasswordEncoder;
-
-    @Autowired
-    private LoginRequestDtoMapper loginRequestDtoMapper;
-
-    @Value("${jwt.secret}")
-    private String jwtSecret;
-
-    @Value("${jwt.expiration}")
-    private long jwtExpiration;
-    @Autowired
     private BCryptPasswordEncoder passwordEncoder;
+
+    @Autowired
+    private JwtTokenProvider jwtTokenProvider;
 
     public LoginResponse login(LoginRequest request) {
         if (request.getUsername().isEmpty()) {
@@ -54,38 +41,27 @@ public class LoginService {
 
         if (optionalUser.isEmpty()) {
             throw new ResponseStatusException(
-                    HttpStatus.UNAUTHORIZED, "Error Code: 401, Unauthorized(가입되지 않은 사용자 입니다)"
+                    HttpStatus.NOT_FOUND, "Error Code: 404, Unauthorized(가입되지 않은 사용자 입니다)"
             );
         }
 
         User user = optionalUser.get();
-        LoginRequest loginRequest = loginRequestDtoMapper.toDto(optionalUser);
 
-        if (!passwordEncoder.matches(request.getPassword().trim(), loginRequest.getPassword().trim())) {
+        if (!passwordEncoder.matches(request.getPassword().trim(), user.getUserPassword())) {
             throw new ResponseStatusException(
                     HttpStatus.UNAUTHORIZED,
                     "Error Code: 401, Unauthorized(잘못된 비밀번호입니다)"
             );
         }
 
-        LoginResponse response = new LoginResponse(null);
-
         try {
-            String token = Jwts.builder()
-                    .setSubject(user.getUserName())
-                    .setIssuedAt(new Date())
-                    .setExpiration(new Date(System.currentTimeMillis() + jwtExpiration))
-                    .signWith(SignatureAlgorithm.HS512, jwtSecret)
-                    .compact();
-            response.setToken(token);
-
+            String token = jwtTokenProvider.generateToken(user.getUserName());
+            return new LoginResponse(token);
         } catch (Exception e) {
             throw new ResponseStatusException(
                     HttpStatus.INTERNAL_SERVER_ERROR,
                     "Error Code: 500, Internal Server Error(JWT 토큰 생성 중 오류 발생: " + e.getMessage() + ")"
             );
         }
-
-        return response;
     }
 }

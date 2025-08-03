@@ -48,6 +48,4 @@ public class Chatroom {
         this.createdAt = new java.sql.Timestamp(System.currentTimeMillis());
         this.queries = new ArrayList<>();
     }
-
-    public Chatroom() {}
 }
