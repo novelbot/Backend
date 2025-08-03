@@ -35,6 +35,7 @@
 예:
 ```bash
 # 로그인 API 테스트
+./graldw clean build
 ./gradlew bootRun --args='--spring.profiles.active=local'
 
 ## 🚪 이슈 닫기

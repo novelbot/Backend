@@ -9,9 +9,10 @@ sourceSets{
 		java{
 			exclude '**/com/novelbot/api/utility/**'
 			exclude '**/com/novelbot/api/controller/DBController.java'
-			exclude '**/com/novelbot/api/service/chat/**'
 			exclude '**/com/novelbot/api/controller/ChatController.java'
 			exclude '**/com/novelbot/api/controller/QueryController.java'
+			exclude '**/com/novelbot/api/service/chat/**'
+			exclude '**/com/novelbot/api/repository/QueryEpisodeRepository.java'
 		}
 	}
 }
