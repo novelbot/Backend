@@ -1,4 +1,4 @@
-package com.novelbot.api.dto.user;
+package com.novelbot.api.dto.join;
 
 import lombok.*;
 

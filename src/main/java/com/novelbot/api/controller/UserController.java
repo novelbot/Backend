@@ -4,8 +4,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import com.novelbot.api.dto.user.UserCreateRequest;
-import com.novelbot.api.service.auth.RegistrationService;
+import com.novelbot.api.dto.join.UserCreateRequest;
+import com.novelbot.api.service.join.RegistrationService;
 
 @RestController
 @RequestMapping("/users")

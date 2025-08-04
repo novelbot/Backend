@@ -1,11 +1,11 @@
-package com.novelbot.api.service.auth;
+package com.novelbot.api.service.join;
 
 import com.novelbot.api.domain.User;
-import com.novelbot.api.dto.user.UserCreateRequest;
+import com.novelbot.api.dto.join.UserCreateRequest;
+import com.novelbot.api.mapper.join.UserCreateRequestMapper;
 import com.novelbot.api.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -15,7 +15,7 @@ public class RegistrationService {
     private UserRepository userRepository;
 
     @Autowired
-    private BCryptPasswordEncoder passwordEncoder;
+    private UserCreateRequestMapper userCreateRequestMapper;
 
     public void registerUser(UserCreateRequest userCreateRequest) {
         if(userCreateRequest == null || userCreateRequest.getUserName() == null || userCreateRequest.getUserName().trim().isEmpty()){
@@ -44,10 +44,7 @@ public class RegistrationService {
             );
         }
 
-        User user = new User(
-                userCreateRequest.getUserName(), userCreateRequest.getUserNickname(),
-                userCreateRequest.getUserEmail(), passwordEncoder.encode(userCreateRequest.getUserPassword().trim())
-        );
+        User user = userCreateRequestMapper.toUser(userCreateRequest);
 
         try{
             userRepository.save(user);

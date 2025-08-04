@@ -1,11 +1,16 @@
 package com.novelbot.api.domain;
 
+import com.novelbot.api.dto.join.UserCreateRequest;
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
+
 import java.util.*;
 
 @Entity
 @Getter
+@NoArgsConstructor
 @Table(name = "user")
 public class User {
     @Id
@@ -29,6 +34,7 @@ public class User {
     private java.sql.Timestamp createdAt;
 
     @Column(name = "user_role", nullable = false)
+    private String userRole;
 
     // 구매 - 사용자 관계 일대다 매핑 카디널리티
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
@@ -42,13 +48,17 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Chatroom> chatrooms = new ArrayList<>();
 
-    public User() {}
-
-    public User(String userName, String userPassword, String userNickname, String userEmail){
+    protected User(String userName, String userPassword, String userNickname, String userEmail, String userRole){
         this.userName = userName;
         this.userPassword = userPassword;
         this.userNickname = userNickname;
         this.userEmail = userEmail;
         this.createdAt = new java.sql.Timestamp(System.currentTimeMillis());
+        this.userRole = (userRole != null) ? userRole : "USER";
+    }
+
+    public static User create(UserCreateRequest request, PasswordEncoder passwordEncoder) {
+        String encodedPassword = passwordEncoder.encode(request.getUserPassword().trim());
+        return new User(request.getUserName(), encodedPassword, request.getUserNickname(), request.getUserEmail(), "USER");
     }
 }
