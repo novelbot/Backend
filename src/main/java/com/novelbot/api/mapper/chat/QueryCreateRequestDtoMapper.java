@@ -9,9 +9,9 @@ public class QueryCreateRequestDtoMapper {
     public QueryCreateRequest toDto(QueryCreateRequest queryCreateRequest) {
         QueryCreateRequest queryCreateRequestDto = new QueryCreateRequest();
 
-        queryCreateRequest.setQueryContent(queryCreateRequest.getQueryContent());
+        queryCreateRequestDto.setQueryContent(queryCreateRequest.getQueryContent());
         queryCreateRequestDto.setPageNumber(queryCreateRequest.getPageNumber());
-        queryCreateRequestDto.setChat_id(queryCreateRequest.getChat_id());
+        queryCreateRequestDto.setChatId(queryCreateRequest.getChatId());
 
         return queryCreateRequestDto;
     }

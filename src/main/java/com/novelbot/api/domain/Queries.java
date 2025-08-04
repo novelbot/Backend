@@ -2,9 +2,11 @@ package com.novelbot.api.domain;
 
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.Setter;
 
 @Entity
 @Getter
+@Setter
 @Table(name = "queries")
 public class Queries {
     @Id
@@ -34,7 +36,14 @@ public class Queries {
 
     public Queries() {}
 
-    public Queries(String queryContent, String queryAnswer, String LLM_id, Chatroom chatroom) {
+    public Queries(String queryContent, Integer pageNumber, Chatroom chatRoom) {
+        this.queryContent = queryContent;
+        this.pageNumber = pageNumber;
+        this.chatRoom = chatRoom;
+        this.askedAt = new java.sql.Timestamp(System.currentTimeMillis());
     }
 
+    public void updateAnswer(String answer) {
+        this.queryAnswer = answer;
+    }
 }
