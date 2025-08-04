@@ -1,5 +1,9 @@
 package com.novelbot.api.config;
 
+import java.nio.charset.StandardCharsets;
+
+import javax.crypto.SecretKey;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -8,48 +12,55 @@ import org.springframework.stereotype.Component;
 
 import com.novelbot.api.service.auth.UserDetailsService;
 
-import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.MalformedJwtException;
-import io.jsonwebtoken.SignatureException;
-import io.jsonwebtoken.UnsupportedJwtException;
+import io.jsonwebtoken.security.Keys;
 
 @Component
 public class JwtTokenValidator {
 
     private final UserDetailsService userDetailsService;
+    private final SecretKey secretKey;
 
-    public JwtTokenValidator(UserDetailsService userDetailsService) {
+    public JwtTokenValidator(@Value("${jwt.secret}") String jwtSecret, UserDetailsService userDetailsService) {
+        this.secretKey = Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
         this.userDetailsService = userDetailsService;
     }
 
-    @Value("${jwt.secret}")
-    private String jwtSecret;
-
     public String getUsername(String token) {
-        return Jwts.parser()
-                .setSigningKey(jwtSecret)
-                .parseClaimsJws(token)
-                .getBody()
-                .getSubject();
+        try {
+            return Jwts.parserBuilder()
+                    .setSigningKey(secretKey)
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody()
+                    .getSubject();
+        } catch (JwtException e) {
+            // 로그 찍고, 필요 시 예외 던짐
+            throw new RuntimeException("잘못된 토큰", e);
+        }
     }
 
     public boolean validateToken(String token) {
         try {
-            Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token);
+            Jwts.parserBuilder()
+                    .setSigningKey(secretKey)
+                    .build()
+                    .parseClaimsJws(token);
             return true;
-        } catch (ExpiredJwtException e) {
-            System.out.println("만료된 토큰");
-        } catch (UnsupportedJwtException e) {
-            System.out.println("지원하지 않는 토큰");
-        } catch (MalformedJwtException e) {
-            System.out.println("잘못된 형식의 토큰");
-        } catch (SignatureException e) {
-            System.out.println("서명 불일치 (위조)");
-        } catch (IllegalArgumentException e) {
-            System.out.println("토큰이 null 또는 빈 문자열");
+        } catch (JwtException e) {
+            System.out.println("유효하지 않은 토큰: " + e.getMessage());
+            return false;
         }
-        return false;
+    }
+
+    public Claims getClaims(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(secretKey)
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
     }
 
     public Authentication getAuthentication(String token) {

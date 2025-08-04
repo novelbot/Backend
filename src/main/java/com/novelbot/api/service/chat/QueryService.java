@@ -1,119 +1,109 @@
 package com.novelbot.api.service.chat;
 
-import com.novelbot.api.domain.Chatroom;
-import com.novelbot.api.domain.Queries;
-import com.novelbot.api.dto.chat.QueryCreateRequest;
-import com.novelbot.api.dto.chat.QueryRequest;
-import com.novelbot.api.dto.chat.QueryResponse;
-import com.novelbot.api.mapper.chat.QueryCreateRequestDtoMapper;
-import com.novelbot.api.mapper.chat.QueryRequestDtoMapper;
-import com.novelbot.api.mapper.chat.QueryResponseDtoMapper;
-import com.novelbot.api.repository.ChatRepository;
-import com.novelbot.api.repository.QueryEpisodeRepository;
-import com.novelbot.api.repository.QueryRepository;
-
-import com.novelbot.api.utility.openAI.OpenAiResponse;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
+import com.novelbot.api.domain.*;
+import com.novelbot.api.dto.chat.QueryDto;
+import com.novelbot.api.mapper.chat.QueryDtoMapper;
+import com.novelbot.api.repository.*;
+import jakarta.persistence.EntityNotFoundException;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class QueryService {
-        @Autowired
-        private QueryRepository queryRepository;
 
-        @Autowired
-        private ChatRepository chatRepository;
+        private final QueryRepository queriesRepository;
+        private final ChatRepository chatroomRepository;
+        private final EpisodeRepository episodeRepository;
+        private final QueryEpisodeRepository episodeQueryRepository;
+        private final UserRepository userRepository; // 사용자 인증 정보를 통해 User 객체를 가져와야 함
 
-        @Autowired
-        private QueryEpisodeRepository queryEpisodeRepository;
+        /**
+         * 새로운 질문 생성
+         */
+        @Transactional
+        public QueryDto.QueryResponse createQuery(int chatId, QueryDto.CreateRequest request, int userId) {
+                // 1. 엔티티 조회
+                User user = userRepository.findById(userId)
+                                .orElseThrow(() -> new EntityNotFoundException("사용자를 찾을 수 없습니다. id=" + userId));
+                Chatroom chatroom = chatroomRepository.findById(chatId)
+                                .orElseThrow(() -> new EntityNotFoundException("채팅방을 찾을 수 없습니다. id=" + chatId));
 
-        @Autowired
-        private QueryCreateRequestDtoMapper queryCreateRequestDtoMapper;
+                // 2. DTO -> Entity 변환
+                Queries newQuery = QueryMapper.toEntity(request, chatroom, user);
+                queriesRepository.save(newQuery);
 
-        @Value("${jwt.secret}")
-        private String jwtSecret;
+                // 3. 페이지 번호가 있는 경우, EpisodeQuery 생성
+                if (request.getPageNumber() != null) {
+                        // novelId와 pageNumber(episode_number로 가정)로 Episode 조회
+                        // 주의: pageNumber가 episode_number와 다르다면 별도 로직 필요
+                        int novelId = chatroom.getNovel().getId();
+                        episodeRepository.findByNovelIdAndEpisodeNumber(novelId, request.getPageNumber())
+                                        .ifPresent(episode -> {
+                                                EpisodeQuery episodeQuery = EpisodeQuery.builder()
+                                                                .query(newQuery)
+                                                                .episode(episode)
+                                                                .build();
+                                                episodeQueryRepository.save(episodeQuery);
+                                        });
+                }
 
-        @Value("${openai.api.key}")
-        private String openaiApiKey;
-
-        private static final String OPENAI_API_URL = "https://api.openai.com/v1/chat/completions";
-
-    public QueryResponse createQuery(QueryCreateRequest queryCreateRequest, String token) {
-        if(queryCreateRequest == null) {
-            throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST, "Error Code: 400, Bad Request(올바르지 않는 형식의 파라미터 값들 입니다.)"
-            );
-        }
-        if(queryCreateRequest.getQueryContent() == null){
-            throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST, "Error Code: 400, Bad Request(질문 내용이 비어있습니다.)"
-            );
-        }
-        if(queryCreateRequest.getPageNumber() <= 0){
-            throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST, "Error Code: 400, Bad Request(올바르지 않은 페이지 번호입니다.)"
-            );
-        }
-        if (token == null || token.trim().isEmpty()) {
-            throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST, "Error Code: 400, Bad Request(토큰이 비어 있습니다)"
-            );
-        }
-
-        String username;
-        try {
-            Claims claims = Jwts.parser()
-                    .setSigningKey(jwtSecret)
-                    .parseClaimsJws(token)
-                    .getBody();
-            username = claims.getSubject();
-        } catch (Exception e) {
-            throw new ResponseStatusException(
-                    HttpStatus.UNAUTHORIZED, "Error Code: 401, Unauthorized(유효하지 않은 토큰입니다: " + e.getMessage() + ")"
-            );
+                // 4. 응답 DTO로 변환하여 반환
+                return new QueryDto.QueryResponse(newQuery);
         }
 
-        Optional<Chatroom> chatroom = Optional.ofNullable(chatRepository.findById(queryCreateRequest.getChat_id())
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.BAD_REQUEST, "Error Code: 400, Bad Request(존재하지 않는 채팅방입니다)"
-                )));
-
-        OpenAiResponse openAiResponse = callOpenAiApi(queryCreateRequest.getQueryContent());
-
-        Queries query(
-                queryCreateRequest.getQueryContent(), null,
-                0, chatroom);
-
-        Queries savedQuery;
-        try {
-            savedQuery = queryRepository.save(query);
-        } catch (Exception e) {
-            throw new ResponseStatusException(
-                    HttpStatus.INTERNAL_SERVER_ERROR, "Error Code: 500, Internal Server Error(질문 저장 중 오류 발생: " + e.getMessage() + ")"
-            );
+        /**
+         * 채팅방의 모든 질문 목록 조회
+         */
+        public List<QueryDto.QueryResponse> getQueriesByChatId(int chatId) {
+                List<Queries> queries = queriesRepository.findByChatroomId(chatId);
+                return queries.stream()
+                                .map(QueryDto.QueryResponse::new)
+                                .collect(Collectors.toList());
         }
 
-        List<Integer> referencedEpisodes = queryEpisodeRepository.findByQueriesQueryId(savedQuery.getQueryId())
-                .stream()
-                .map(QueryEpiosode::getEpisodeNumber)
-                .collect(Collectors.toList());
+        /**
+         * 특정 질문 조회
+         */
+        public QueryDto.QueryResponse getQuery(int queryId) {
+                Queries query = queriesRepository.findById(queryId)
+                                .orElseThrow(() -> new EntityNotFoundException("질문을 찾을 수 없습니다. id=" + queryId));
+                return new QueryDto.QueryResponse(query);
+        }
 
-        return new QueryResponse(
-                savedQuery.getQueryContent(),
-                Arrays.asList(openAiResponse.getPromptTokens(), openAiResponse.getCompletionTokens()),
-                savedQuery.getChatRoom().getChatId(),
-                savedQuery.getQueryAnswer(),
-                referencedEpisodes
-        );
-    }
+        /**
+         * 질문에 대한 AI 답변 생성 및 저장
+         */
+        @Transactional
+        public QueryDto.AnswerResponse generateAnswer(int queryId) {
+                Queries query = queriesRepository.findById(queryId)
+                                .orElseThrow(() -> new EntityNotFoundException("질문을 찾을 수 없습니다. id=" + queryId));
+
+                // TODO: AI 모델을 호출하여 답변을 생성하는 로직
+                // 예: String generatedAnswer = aiModelClient.generate(query.getQueryContent());
+                String generatedAnswer = "AI가 생성한 답변입니다: '" + query.getQueryContent() + "'에 대한 답변.";
+
+                query.updateAnswer(generatedAnswer);
+                // 변경 감지(dirty checking)에 의해 트랜잭션 종료 시 update 쿼리 실행
+
+                return new QueryDto.AnswerResponse(query.getId(), generatedAnswer);
+        }
+
+        /**
+         * 질문 삭제
+         */
+        @Transactional
+        public void deleteQuery(int queryId) {
+                // 연관된 EpisodeQuery도 함께 삭제되도록 cascade 설정을 하거나, 직접 삭제 로직을 추가해야 합니다.
+                // 여기서는 Queries만 삭제하는 것으로 가정합니다.
+                if (!queriesRepository.existsById(queryId)) {
+                        throw new EntityNotFoundException("삭제할 질문을 찾을 수 없습니다. id=" + queryId);
+                }
+                queriesRepository.deleteById(queryId);
+        }
 }
