@@ -9,5 +9,5 @@ import lombok.*;
 public class QueryCreateRequest {
     private String queryContent;
     private Integer pageNumber;
-    private Integer chat_id;
+    private Integer chatId;
 }

@@ -23,7 +23,7 @@ public class UserDetailsService {
                 .builder()
                 .username(user.getUserName())
                 .password(user.getUserPassword())
-                //역할 가져오는 로직 추가
+                .roles(user.getUserRole().toString())
                 .build();
     }
 }
