@@ -6,16 +6,16 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class QueryDtoMapper {
-    public QueryDto toDto(Queries queries){
+    public QueryDto toDto(Queries queries) {
         QueryDto queryDto = new QueryDto();
 
         queryDto.setQueryId(queries.getId());
-        queryDto.setChatId(queryDto.getChatId());
-        queryDto.setUserId(queryDto.getUserId());
-        queryDto.setNovelId(queryDto.getNovelId());
+        queryDto.setChatId(queries.getChatRoom().getId());
+        queryDto.setUserId(queries.getChatRoom().getUser().getId());
+        queryDto.setNovelId(queries.getChatRoom().getNovel().getId());
         queryDto.setQueryContent(queries.getQueryContent());
         queryDto.setQueryAnswer(queries.getQueryAnswer());
-        queryDto.setAskedAt(queryDto.getAskedAt());
+        queryDto.setAskedAt(queries.getAskedAt().toString());
         queryDto.setPageNumber(queries.getPageNumber());
         queryDto.setField(queries.getField());
 

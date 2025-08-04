@@ -28,20 +28,20 @@ public class EpisodeService {
     private EpisodeDtoMapper episodeDtoMapper;
 
     // 웹소설 본문 조회
-    public Optional<EpisodeDto> getEpisodeContent(int novel_id, int episode_number) {
-        if(novel_id <= 0) {
+    public Optional<EpisodeDto> getEpisodeContent(int novelId, int episodeNumber) {
+        if(novelId <= 0) {
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST, "Error Code: 400, Conflict(유효하지 않은 novelId)"
             );
         }
 
-        if(episode_number <= 0) {
+        if(episodeNumber <= 0) {
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST, "Error Code: 400, Conflict(유효하지 않은 episodeNumber)"
             );
         }
 
-        Optional<Episode> episode = episodeRepository.findByNovelIdAndEpisodeNumber(novel_id, episode_number);
+        Optional<Episode> episode = episodeRepository.findByNovelIdAndEpisodeNumber(novelId, episodeNumber);
         if(episode.isEmpty()) {
             throw new ResponseStatusException(
                     HttpStatus.NOT_FOUND, "Error Code: 404, Conflict(존재하지 않는 novelId)"
