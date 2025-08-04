@@ -2,7 +2,6 @@ package com.novelbot.api.service.chat;
 
 import com.novelbot.api.domain.Chatroom;
 import com.novelbot.api.domain.Queries;
-import com.novelbot.api.dto.chat.QueryCreateRequest;
 import com.novelbot.api.dto.chat.QueryDto;
 import com.novelbot.api.mapper.chat.QueryDtoMapper;
 import com.novelbot.api.repository.ChatRepository;
@@ -33,16 +32,15 @@ public class QueryService {
      * 새로운 질문 생성
      */
     @Transactional
-    public void createQuery(QueryCreateRequest request) {
-        if (request == null || request.getChatId() == null || request.getQueryContent() == null
-                || request.getQueryContent().isEmpty()) {
+    public void createQuery(Integer chatId, String queryContent, Integer pageNumber) {
+        if (chatId == null || queryContent == null || queryContent.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "잘못된 요청입니다.");
         }
 
-        Chatroom chatroom = chatRepository.findById(request.getChatId())
+        Chatroom chatroom = chatRepository.findById(chatId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "채팅방을 찾을 수 없습니다."));
 
-        Queries query = new Queries(request.getQueryContent(), request.getPageNumber(), chatroom);
+        Queries query = new Queries(queryContent, pageNumber, chatroom);
         queryRepository.save(query);
     }
 

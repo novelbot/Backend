@@ -26,8 +26,7 @@ public class QueryController {
     @Operation(summary = "질문 생성", description = "새로운 질문을 생성하는 API")
     @PostMapping("/queries")
     public ResponseEntity<Void> createQuery(@PathVariable Integer chatId, @RequestBody QueryCreateRequest request) {
-        request.setChatId(chatId);
-        queryService.createQuery(request);
+        queryService.createQuery(chatId, request.getQueryContent(), request.getPageNumber());
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 

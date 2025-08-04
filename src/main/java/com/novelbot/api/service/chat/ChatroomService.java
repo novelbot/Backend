@@ -3,7 +3,6 @@ package com.novelbot.api.service.chat;
 import com.novelbot.api.domain.Chatroom;
 import com.novelbot.api.domain.Novel;
 import com.novelbot.api.domain.User;
-import com.novelbot.api.dto.chat.ChatroomCreateRequest;
 import com.novelbot.api.dto.chat.ChatroomDto;
 import com.novelbot.api.mapper.chat.ChatroomDtoMapper;
 import com.novelbot.api.config.JwtTokenValidator;
@@ -39,13 +38,12 @@ public class ChatroomService {
     }
 
     // 채팅방 생성
-    public void createChatroom(ChatroomCreateRequest chatroomCreateRequest, String token) {
-        if (chatroomCreateRequest == null || chatroomCreateRequest.getNovelId() == null
-                || chatroomCreateRequest.getNovelId() <= 0) {
+    public void createChatroom(Integer novelId, String chatTitle, String token) {
+        if (novelId == null || novelId <= 0) {
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST, "novelId가 올바르지 않은 형식입니다.");
         }
-        if (chatroomCreateRequest.getChatTitle() == null || chatroomCreateRequest.getChatTitle().isEmpty()) {
+        if (chatTitle == null || chatTitle.isEmpty()) {
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST, "채팅방 제목이 비어 있습니다.");
         }
@@ -59,12 +57,11 @@ public class ChatroomService {
         User user = userRepository.findByUserName(username).orElseThrow(
                 () -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다."));
-        Novel novel = novelRepository.findById(chatroomCreateRequest.getNovelId()).orElseThrow(
+        Novel novel = novelRepository.findById(novelId).orElseThrow(
                 () -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND, "소설을 찾을 수 없습니다."));
 
-        Chatroom chatroom = new Chatroom(
-                chatroomCreateRequest.getChatTitle(), user, novel);
+        Chatroom chatroom = new Chatroom(chatTitle, user, novel);
 
         try {
             chatRepository.save(chatroom);
