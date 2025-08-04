@@ -8,6 +8,8 @@ import com.novelbot.api.dto.novel.NovelCreateRequest;
 import com.novelbot.api.dto.novel.NovelDto;
 import com.novelbot.api.service.novel.NovelService;
 
+import io.swagger.v3.oas.annotations.Operation;
+
 import java.util.List;
 
 @RestController
@@ -21,6 +23,7 @@ public class NovelController {
         this.novelService = novelService;
     }
 
+    @Operation(summary = "웹소설 목록 조회", description = "모든 웹소설 목록을 조회하는 API")
     @GetMapping
     public ResponseEntity<List<NovelDto>> getNovelList() {
         List<NovelDto> novels = novelService.findAllNovels();
@@ -33,6 +36,7 @@ public class NovelController {
     //     return ResponseEntity.status(HttpStatus.CREATED).build(); // 201 Created 응답
     // }
 
+    @Operation(summary = "웹소설 상세 조회", description = "특정 웹소설의 상세 정보를 조회하는 API")
     @GetMapping("/search")
     public ResponseEntity<NovelDto> searchNovels(@RequestParam String title) {
         NovelDto searchResult = novelService.searchNovel(title);

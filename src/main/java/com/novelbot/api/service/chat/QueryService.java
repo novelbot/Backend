@@ -28,25 +28,25 @@ import java.util.stream.Collectors;
 
 @Service
 public class QueryService {
-    @Autowired
-    private QueryRepository queryRepository;
+        @Autowired
+        private QueryRepository queryRepository;
 
-    @Autowired
-    private ChatRepository chatRepository;
+        @Autowired
+        private ChatRepository chatRepository;
 
-    @Autowired
-    private QueryEpisodeRepository queryEpisodeRepository;
+        @Autowired
+        private QueryEpisodeRepository queryEpisodeRepository;
 
-    @Autowired
-    private QueryCreateRequestDtoMapper queryCreateRequestDtoMapper;
+        @Autowired
+        private QueryCreateRequestDtoMapper queryCreateRequestDtoMapper;
 
-    @Value("${jwt.secret}")
-    private String jwtSecret;
+        @Value("${jwt.secret}")
+        private String jwtSecret;
 
-    @Value("${openai.api.key}")
-    private String openaiApiKey;
+        @Value("${openai.api.key}")
+        private String openaiApiKey;
 
-    private static final String OPENAI_API_URL = "https://api.openai.com/v1/chat/completions";
+        private static final String OPENAI_API_URL = "https://api.openai.com/v1/chat/completions";
 
     public QueryResponse createQuery(QueryCreateRequest queryCreateRequest, String token) {
         if(queryCreateRequest == null) {
