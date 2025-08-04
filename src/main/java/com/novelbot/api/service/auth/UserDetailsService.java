@@ -2,10 +2,12 @@ package com.novelbot.api.service.auth;
 
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.stereotype.Service;
 
 import com.novelbot.api.domain.User;
 import com.novelbot.api.repository.UserRepository;
 
+@Service
 public class UserDetailsService {
     private final UserRepository userRepository;
 

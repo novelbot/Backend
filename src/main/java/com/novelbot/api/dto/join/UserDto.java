@@ -1,4 +1,4 @@
-package com.novelbot.api.dto.user;
+package com.novelbot.api.dto.join;
 
 import lombok.*;
 
@@ -12,4 +12,5 @@ public class UserDto {
     private String userNickname;
     private String userEmail;
     private String createdAt;
+    private String userRole;
 }

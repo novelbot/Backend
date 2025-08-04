@@ -7,7 +7,6 @@ import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Entity
 @Getter
@@ -39,10 +38,8 @@ public class Chatroom {
     @OneToMany(mappedBy = "chatRoom", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Queries> queries = new ArrayList<>();
 
-    public Chatroom(String chatTitle, Optional<User> user, Optional<Novel> novel) {}
-
     public Chatroom(String chatTitle, User user, Novel novel) {
-        this.chatTitle = chatTitle;
+        this.chatTitle = (chatTitle != null) ? chatTitle : "기본 채팅방";
         this.user = user;
         this.novel = novel;
         this.createdAt = new java.sql.Timestamp(System.currentTimeMillis());

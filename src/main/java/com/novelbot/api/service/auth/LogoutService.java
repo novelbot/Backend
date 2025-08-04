@@ -9,6 +9,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.novelbot.api.config.JwtTokenValidator;
+
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
@@ -16,6 +18,9 @@ import java.util.concurrent.TimeUnit;
 public class LogoutService {
     @Autowired
     private RedisTemplate<String, String> redisTemplate;
+
+    @Autowired
+    private JwtTokenValidator jwtTokenValidator;
 
     @Value("${jwt.secret}")
     private String jwtSecret;
@@ -33,6 +38,7 @@ public class LogoutService {
 
         try {
             // JWT 토큰 파싱 및 만료 시간 확인
+            jwtTokenValidator.validateToken(token);
             Claims claims = Jwts.parser()
                     .setSigningKey(jwtSecret)
                     .parseClaimsJws(token)
