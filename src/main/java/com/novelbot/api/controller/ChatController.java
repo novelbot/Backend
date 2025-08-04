@@ -36,7 +36,7 @@ public class ChatController {
     public ResponseEntity<Void> createChatroom(@RequestBody ChatroomCreateRequest request,
             @RequestHeader("Authorization") String authorizationHeader) {
         String token = extractTokenFromHeader(authorizationHeader);
-        chatroomService.createChatroom(request, token);
+        chatroomService.createChatroom(request.getNovelId(), request.getChatTitle(), token);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
