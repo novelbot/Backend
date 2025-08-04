@@ -7,6 +7,8 @@ import org.springframework.web.bind.annotation.*;
 import com.novelbot.api.dto.join.UserCreateRequest;
 import com.novelbot.api.service.join.RegistrationService;
 
+import io.swagger.v3.oas.annotations.Operation;
+
 @RestController
 @RequestMapping("/users")
 public class UserController {
@@ -17,6 +19,7 @@ public class UserController {
         this.registor = registor;
     }
 
+    @Operation(summary = "회원가입", description = "새로운 사용자를 등록하는 API")
     @PostMapping
     public ResponseEntity<Void> signup(@RequestBody UserCreateRequest userCreate) {
         registor.registerUser(userCreate);
