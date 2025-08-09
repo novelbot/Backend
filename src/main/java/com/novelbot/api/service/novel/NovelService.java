@@ -26,14 +26,7 @@ public class NovelService {
     public List<NovelDto> findAllNovels() {
 
         List<Novel> novelList = novelRepository.findAll();
-
-        if (novelList.isEmpty()) {
-            throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST,
-                    "Error Code: 400, Bad Request(등록된 소설이 존재하지 않습니다)"
-            );
-        }
-
+        
         return novelList.stream()
                 .map(novel -> {
                     try {
@@ -89,8 +82,8 @@ public class NovelService {
 
         if (optionalNovel.isEmpty()) {
             throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST,
-                    "Error Code: 400, Bad Request(해당 소설 제목을 찾을 수 없습니다: " + novelTitle + ")"
+                    HttpStatus.NOT_FOUND,
+                    "Error Code: 404, Not Found(해당 소설 제목을 찾을 수 없습니다: " + novelTitle + ")"
             );
         }
 
