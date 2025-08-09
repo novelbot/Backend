@@ -30,6 +30,13 @@ public class NovelController {
         return ResponseEntity.ok(novels);
     }
 
+    @Operation(summary = "id를 통한 웹소설 조회", description = "특정 웹소설의 상세 정보를 조회하는 API")
+    @GetMapping("/{novelId}")
+    public ResponseEntity<NovelDto> getNovel(@PathVariable Integer novelId){
+        NovelDto novel = novelService.findById(novelId);
+        return ResponseEntity.ok(novel);
+    }
+
     // @PostMapping
     // public ResponseEntity<Void> registerNovel(@RequestBody NovelCreateRequest novel) {
     //     novelService.createNovel(novel);
