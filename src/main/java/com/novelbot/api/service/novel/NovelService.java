@@ -48,6 +48,34 @@ public class NovelService {
                 .collect(Collectors.toList());
     }
 
+    //소설 id 탐색
+    public NovelDto findById(int novelId) {
+        if (novelId <= 0) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Error Code: 400, Bad Request(유효하지 않은 novelId)"
+            );
+        }
+        
+        Optional<Novel> optionalNovel = novelRepository.findById(novelId);
+
+        if (optionalNovel.isEmpty()) {
+            throw new ResponseStatusException(
+                    HttpStatus.NOT_FOUND,
+                    "Error Code: 404, Conflict(존재하지 않는 novelId)"
+            );
+        }
+
+        try {
+            return novelDtoMapper.toDto(optionalNovel.get());
+        } catch (Exception e) {
+            throw new ResponseStatusException(
+                    HttpStatus.CONFLICT,
+                    "Error Code: 409, Conflict(소설 매핑 중 충돌 발생: " + e.getMessage() + ")"
+            );
+        }
+    }
+
     // 소설 제목 검색
     public NovelDto searchNovel(String novelTitle) {
         if (novelTitle == null || novelTitle.trim().isEmpty()) {
