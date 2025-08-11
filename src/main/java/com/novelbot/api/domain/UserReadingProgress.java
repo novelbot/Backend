@@ -2,8 +2,10 @@ package com.novelbot.api.domain;
 
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.Setter;
 
 @Entity
+@Setter
 @Getter
 @Table(name = "user_reading_progress")
 public class UserReadingProgress {
