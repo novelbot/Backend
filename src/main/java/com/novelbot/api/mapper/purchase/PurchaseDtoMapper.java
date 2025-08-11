@@ -9,7 +9,6 @@ public class PurchaseDtoMapper {
     public PurchaseDto toDto(Purchase purchase) {
         PurchaseDto purchaseDto = new PurchaseDto();
 
-        purchaseDto.setIsPurchase(purchase.getIsPurchase());
         purchaseDto.setNovelId(purchase.getNovel().getId());
         purchaseDto.setEpisodeId(purchase.getEpisode().getId());
         purchaseDto.setUserId(purchase.getUser().getId());
