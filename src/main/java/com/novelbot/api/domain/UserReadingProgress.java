@@ -9,10 +9,6 @@ import lombok.Setter;
 @Getter
 @Table(name = "user_reading_progress")
 public class UserReadingProgress {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "progress_id", nullable = false)
-    private Integer id;
 
     // 에피소드 - 독서 진도 일대다 매핑 카디널리티
     @ManyToOne(fetch = FetchType.LAZY)
