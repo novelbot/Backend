@@ -55,7 +55,7 @@ public class LoginService {
         }
 
         try {
-            String token = jwtTokenProvider.generateToken(user.getUserName());
+            String token = jwtTokenProvider.generateToken(user.getUserName(), user.getId());
             return new LoginResponse(token);
         } catch (Exception e) {
             throw new ResponseStatusException(

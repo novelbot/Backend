@@ -1,31 +1,35 @@
-# IDE files
-.idea/
-*.iml
-*.iws
-*.ipr
+# Compiled class file
+*.class
 
-#vscode files
-.vscode/
-
-# Build files
-build/
-.gradle/
-out/
-
-# Log files
+# Log file
 *.log
 
-# test files
-/src/test/resources/*
-/src/test/java/*
+# BlueJ files
+*.ctxt
 
-# Local configuration files
-application-*.properties
-secrets/
-*.env
+# Mobile Tools for Java (J2ME)
+.mtj.tmp/
 
-# Other
-.DS_Store
-.DS_Store?
-DBController.java
-*.xlsx
+# Package Files #
+*.jar
+*.war
+*.ear
+*.zip
+*.tar.gz
+*.rar
+
+# Gradle Wrapper
+# The wrapper jar is required for builds and should be committed.
+!gradle/wrapper/gradle-wrapper.jar
+
+# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
+hs_err_pid*
+
+### Gradle ###
+.gradle
+/build/
+
+### IntelliJ IDEA ###
+.idea
+*.iml
+*.iws

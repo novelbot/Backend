@@ -18,12 +18,13 @@ public class JwtTokenProvider {
     @Value("${jwt.expiration}")
     private long jwtExpiration;
 
-    public String generateToken(String userName) {
+    public String generateToken(String userName, Integer userId) {
         Date now = new Date();
         Date validity = new Date(now.getTime() + jwtExpiration);
 
         return Jwts.builder()
                 .setSubject(userName)
+                .claim("userId", userId)
                 .setIssuedAt(now)
                 .setExpiration(validity)
                 .signWith(Keys.hmacShaKeyFor(jwtSecret.getBytes()), SignatureAlgorithm.HS256)
