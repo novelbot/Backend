@@ -6,7 +6,6 @@ import lombok.*;
 @Setter
 @NoArgsConstructor
 public class EpisodeDto {
-    private Integer episodeId;
     private Integer novelId;
     private Integer episodeNumber;
     private String episodeTitle;

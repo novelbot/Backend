@@ -1,11 +1,16 @@
 package com.novelbot.api.service.novel;
 
 import com.novelbot.api.domain.Episode;
+import com.novelbot.api.domain.Novel;
+import com.novelbot.api.dto.novel.EpisodeCreateRequest;
 import com.novelbot.api.dto.novel.EpisodeDto;
 import com.novelbot.api.dto.novel.EpisodeListDto;
 import com.novelbot.api.mapper.novel.EpisodeListDtoMapper;
 import com.novelbot.api.mapper.novel.EpisodeDtoMapper;
 import com.novelbot.api.repository.EpisodeRepository;
+import com.novelbot.api.repository.NovelRepository;
+import com.novelbot.api.config.JwtTokenValidator;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -26,6 +31,12 @@ public class EpisodeService {
 
     @Autowired
     private EpisodeDtoMapper episodeDtoMapper;
+
+    @Autowired
+    private NovelRepository novelRepository;
+
+    @Autowired
+    private JwtTokenValidator jwtTokenValidator;
 
     // 웹소설 본문 조회
     public Optional<EpisodeDto> getEpisodeContent(int novelId, int episodeNumber) {
@@ -81,6 +92,53 @@ public class EpisodeService {
         }
 
         return episodeListDtos;
+    }
+
+    // 에피소드 등록
+    public EpisodeDto registerEpisode(EpisodeCreateRequest episodeCreateRequest, String token) {
+        if(episodeCreateRequest.getNovelId() == null || episodeCreateRequest.getNovelId() <= 0) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "novelId가 올바르지 않은 형식입니다.");
+        }
+        if(episodeCreateRequest.getEpisodeNumber() == null || episodeCreateRequest.getEpisodeNumber() <= 0) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,"episodeId가 올바르지 않은 형식입니다.");
+        }
+        if (episodeCreateRequest.getEpisodeTitle() == null || episodeCreateRequest.getEpisodeTitle().trim().isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "episodeTitle이 null이거나 비어 있습니다.");
+        }
+        if (episodeCreateRequest.getContent() == null || episodeCreateRequest.getContent().trim().isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "content가 null이거나 비어 있습니다.");
+        }
+
+        String username;
+        try {
+            username = jwtTokenValidator.getUsername(token);
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "유효하지 않은 토큰입니다.", e);
+        }
+
+        Novel novel = novelRepository.findById(episodeCreateRequest.getNovelId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "소설을 찾을 수 없습니다."));
+
+        Optional<Episode> existingEpisode = episodeRepository.findByNovelIdAndEpisodeNumber(
+                episodeCreateRequest.getNovelId(), episodeCreateRequest.getEpisodeNumber());
+        if (existingEpisode.isPresent()) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "이미 존재하는 에피소드 번호입니다.");
+        }
+
+        Episode episode = new Episode();
+
+        episode.setNovel(novel);
+        episode.setEpisodeNumber(episodeCreateRequest.getEpisodeNumber());
+        episode.setEpisodeTitle(episodeCreateRequest.getEpisodeTitle());
+        episode.setContent(episodeCreateRequest.getContent());
+
+        try {
+            Episode savedEpisode = episodeRepository.save(episode);
+            return episodeDtoMapper.toDto(Optional.of(savedEpisode));
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "에피소드 등록 중 오류가 발생했습니다.", e);
+        }
+
     }
 }
 

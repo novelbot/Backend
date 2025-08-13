@@ -8,6 +8,8 @@ import lombok.*;
 @Setter
 @NoArgsConstructor
 public class EpisodeCreateRequest {
+    private Integer novelId;
+    private Integer episodeId;
     private Integer episodeNumber;
     private String episodeTitle;
     private String content;
