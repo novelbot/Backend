@@ -9,5 +9,5 @@ public class PurchaseDto {
     private Integer episodeId;
     private Integer novelId;
     private Integer userId;
-    private Boolean isPurchase;
+    private Boolean ispurchased;
 }

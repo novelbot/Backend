@@ -8,4 +8,5 @@ import lombok.*;
 public class PurchaseRequest {
     private Integer episodeId;
     private Integer novelId;
+    private Boolean ispurchased;
 }
