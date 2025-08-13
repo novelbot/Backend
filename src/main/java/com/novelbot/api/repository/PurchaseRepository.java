@@ -9,7 +9,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface PurchaseRepository extends JpaRepository<Purchase, Integer> {
-    boolean existsByUserAndEpisode(User user, Episode episode);
-
     List<Purchase> findByUserAndEpisodeAndNovel(User user, Episode episode, Novel novel);
+
+    List<Purchase> findByUserAndNovel(User user, Novel novel);
+
+    List<Purchase> findByUser(User user);
 }

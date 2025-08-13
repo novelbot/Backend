@@ -49,7 +49,13 @@ public class PurchaseService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "episodeId가 올바르지 않은 형식입니다.");
         }
 
-        String username = jwtTokenValidator.getUsername(token);
+        String username;
+
+        try {
+            username = jwtTokenValidator.getUsername(token);
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "유효하지 않은 토큰입니다.", e);
+        }
 
         User user = userRepository.findByUserName(username)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다."));
@@ -60,8 +66,7 @@ public class PurchaseService {
         Episode episode = episodeRepository.findById(purchaseRequest.getEpisodeId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "에피소드를 찾을 수 없습니다."));
 
-        boolean alreadyPurchased = purchaseRepository.existsByUserAndEpisode(user, episode);
-        if(alreadyPurchased){
+        if(purchaseRequest.getIspurchased()) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "이미 구매한 에피소드입니다.");
         }
 
@@ -88,22 +93,34 @@ public class PurchaseService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "episodeId가 올바르지 않은 형식입니다.");
         }
 
-        String username = jwtTokenValidator.getUsername(token);
+        String username;
+
+        try {
+            username = jwtTokenValidator.getUsername(token);
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "유효하지 않은 토큰입니다.", e);
+        }
 
         User user = userRepository.findByUserName(username)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다."));
 
-        Episode episode = episodeRepository.findById(purchaseDto.getEpisodeId())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "에피소드를 찾을 수 없습니다."));
+        List<Purchase> purchases;
 
-        Novel novel = novelRepository.findById(purchaseDto.getNovelId())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "소설을 찾을 수 없습니다."));
+        if (purchaseDto.getNovelId() != null && purchaseDto.getNovelId() > 0) {
+            Novel novel = novelRepository.findById(purchaseDto.getNovelId())
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "소설을 찾을 수 없습니다."));
 
-        List<Purchase> purchases = purchaseRepository.findByUserAndEpisodeAndNovel(
-                user,
-                episode,
-                novel
-        );
+            if (purchaseDto.getEpisodeId() != null && purchaseDto.getEpisodeId() > 0) {
+                Episode episode = episodeRepository.findById(purchaseDto.getEpisodeId())
+                        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "에피소드를 찾을 수 없습니다."));
+                purchases = purchaseRepository.findByUserAndEpisodeAndNovel(user, episode, novel);
+            }
+            else {
+                purchases = purchaseRepository.findByUserAndNovel(user, novel);
+            }
+        } else {
+            purchases = purchaseRepository.findByUser(user);
+        }
 
         if (purchases.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "구매 내역이 없습니다.");
@@ -111,16 +128,12 @@ public class PurchaseService {
 
         return purchases.stream()
                 .map(purchase -> {
-            try{
-                return purchaseDtoMapper.toDto(purchase);
-            }catch(Exception e){
-                throw new ResponseStatusException(
-                        HttpStatus.CONFLICT,
-                        "구매 매핑 중 충돌 발생"
-                );
-            }
-        })
+                    try {
+                        return purchaseDtoMapper.toDto(purchase);
+                    } catch (Exception e) {
+                        throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "구매 매핑 중 오류가 발생했습니다.", e);
+                    }
+                })
                 .collect(Collectors.toList());
     }
-
 }
