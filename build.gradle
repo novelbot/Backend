@@ -2,6 +2,7 @@ plugins {
 	id 'java'
 	id 'org.springframework.boot' version '3.5.3'
 	id 'io.spring.dependency-management' version '1.1.7'
+	id 'jacoco' // 테스트 커버리지를 위해 추가
 }
 
 sourceSets{
@@ -28,30 +29,114 @@ repositories {
 }
 
 dependencies {
+	// Spring Boot Starters
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.boot:spring-boot-starter-web-services'
 	implementation 'org.springframework.boot:spring-boot-starter-actuator'
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+	
+	// Database
 	implementation 'org.flywaydb:flyway-core'
 	implementation 'org.flywaydb:flyway-mysql'
+	runtimeOnly 'mysql:mysql-connector-java:8.0.33'
+	
+	// File Processing
 	implementation 'org.apache.poi:poi:5.2.3'
 	implementation 'org.apache.poi:poi-ooxml:5.2.3'
+	
+	// JWT
 	implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
-	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.6.0'
-	runtimeOnly 'mysql:mysql-connector-java:8.0.33'
 	runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
     runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
-	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-	testImplementation 'com.h2database:h2'
-	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+	
+	// OpenAPI Documentation
+	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.6.0'
+	
+	// Lombok
 	compileOnly 'org.projectlombok:lombok:1.18.32'
 	annotationProcessor 'org.projectlombok:lombok:1.18.32'
+	
+	// Test Dependencies
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation 'org.springframework.security:spring-security-test'
+	testImplementation 'org.springframework.boot:spring-boot-testcontainers'
+	testImplementation 'org.testcontainers:junit-jupiter'
+	testImplementation 'org.testcontainers:mysql'
+	testImplementation 'com.h2database:h2'
+	testImplementation 'it.ozimov:embedded-redis:0.7.3'
+	testImplementation 'org.mockito:mockito-core'
+	testImplementation 'org.mockito:mockito-junit-jupiter'
+	testImplementation 'org.assertj:assertj-core'
+	testImplementation 'com.jayway.jsonpath:json-path'
+	testImplementation 'org.hamcrest:hamcrest'
+	
+	// Test Lombok
 	testImplementation('org.projectlombok:lombok:1.18.32')
     testAnnotationProcessor('org.projectlombok:lombok:1.18.32')
+	
+	// Test Runtime
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
+// 테스트 설정
 test {
-    enabled = false
+    useJUnitPlatform()
+    
+    // 테스트 프로파일 설정
+    systemProperty 'spring.profiles.active', 'test'
+    
+    // 테스트 결과 상세 출력
+    testLogging {
+        events "passed", "skipped", "failed"
+        exceptionFormat "full"
+        showStandardStreams = false
+    }
+    
+    // 테스트 병렬 실행 설정
+    maxParallelForks = Runtime.runtime.availableProcessors().intdiv(2) ?: 1
+    
+    // 테스트 메모리 설정
+    minHeapSize = "128m"
+    maxHeapSize = "512m"
+    
+    // H2 데이터베이스를 위한 시스템 프로퍼티
+    systemProperty 'spring.test.database.replace', 'none'
+    
+    // 테스트 실패 시 즉시 중단하지 않고 모든 테스트 실행
+    failFast = false
+    
+    // 테스트 결과를 항상 실행하도록 설정
+    outputs.upToDateWhen { false }
+}
+
+// JaCoCo 테스트 커버리지 설정
+jacoco {
+    toolVersion = "0.8.8"
+}
+
+jacocoTestReport {
+    dependsOn test
+    reports {
+        xml.required = true
+        html.required = true
+        csv.required = false
+    }
+    
+    executionData fileTree(project.rootDir.absolutePath).include("**/build/jacoco/*.exec")
+}
+
+// 테스트 리포트 생성
+test.finalizedBy jacocoTestReport
+
+// 빌드 태스크에서 테스트 제외 (CI/CD에서는 별도 실행)
+jar {
+    enabled = true
+    archiveClassifier = '' // 기본 jar 파일
+}
+
+bootJar {
+    enabled = true
+    archiveClassifier = 'boot' // 실행 가능한 jar 파일
 }
