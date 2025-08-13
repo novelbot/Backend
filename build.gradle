@@ -132,11 +132,10 @@ test.finalizedBy jacocoTestReport
 
 // 빌드 태스크에서 테스트 제외 (CI/CD에서는 별도 실행)
 jar {
-    enabled = true
-    archiveClassifier = '' // 기본 jar 파일
+    enabled = false // plain jar 비활성화
 }
 
 bootJar {
     enabled = true
-    archiveClassifier = 'boot' // 실행 가능한 jar 파일
+    archiveClassifier = '' // 실행 가능한 jar 파일 (기본 이름 사용)
 }
