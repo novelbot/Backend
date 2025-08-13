@@ -42,6 +42,15 @@ public class JwtTokenValidator {
         }
     }
 
+    public Integer getUserId(String token) {
+        try {
+            return getClaims(token).get("userId", Integer.class);
+        } catch (JwtException e) {
+            // 로그를 남기거나, 애플리케이션의 요구사항에 맞게 예외를 처리할 수 있습니다.
+            throw new RuntimeException("잘못된 토큰에서 userId를 추출할 수 없습니다.", e);
+        }
+    }
+
     public boolean validateToken(String token) {
         try {
             Jwts.parserBuilder()
