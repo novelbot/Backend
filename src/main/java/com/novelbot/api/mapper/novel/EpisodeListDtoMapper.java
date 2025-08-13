@@ -9,7 +9,7 @@ public class EpisodeListDtoMapper {
     public EpisodeListDto toDto(Episode episode){
         EpisodeListDto episodeListDto = new EpisodeListDto();
 
-        episodeListDto.setEpisodeId(episode.getId());
+        episodeListDto.setEpisodeNumber(episode.getEpisodeNumber());
         episodeListDto.setNovelId(episode.getNovel().getId());
         episodeListDto.setEpisodeNumber(episode.getEpisodeNumber());
         episodeListDto.setEpisodeTitle(episode.getEpisodeTitle());
