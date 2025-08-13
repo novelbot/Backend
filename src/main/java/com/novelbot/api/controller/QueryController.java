@@ -9,6 +9,8 @@ import com.novelbot.api.dto.chat.QueryDto;
 import com.novelbot.api.service.chat.QueryService;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import java.util.List;
 
 
@@ -24,12 +26,22 @@ public class QueryController {
     }
 
     @Operation(summary = "질문 생성", description = "새로운 질문을 생성하는 API")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "질문 생성 성공"),
+            @ApiResponse(responseCode = "400", description = "잘못된 요청"),
+            @ApiResponse(responseCode = "404", description = "채팅방을 찾을 수 없음")
+    })
     @PostMapping("/queries")
     public ResponseEntity<Void> createQuery(@PathVariable Integer chatId, @RequestBody QueryCreateRequest request) {
         queryService.createQuery(chatId, request.getQueryContent(), request.getPageNumber());
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
+    @Operation(summary = "질문 목록 조회", description = "채팅방의 모든 질문을 조회하는 API")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "질문 목록 조회 성공"),
+            @ApiResponse(responseCode = "404", description = "채팅방을 찾을 수 없음")
+    })
     @GetMapping("/queries")
     public ResponseEntity<List<QueryDto>> getQueries(@PathVariable Integer chatId) {
         List<QueryDto> queries = queryService.getQueriesByChatId(chatId);
@@ -37,6 +49,10 @@ public class QueryController {
     }
 
     @Operation(summary = "질문 삭제", description = "특정 질문을 삭제하는 API")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "질문 삭제 성공"),
+            @ApiResponse(responseCode = "404", description = "질문을 찾을 수 없음")
+    })
     @DeleteMapping("/queries/{queryId}")
     public ResponseEntity<Void> deleteQuery(@PathVariable Integer queryId) {
         queryService.deleteQuery(queryId);
@@ -44,6 +60,11 @@ public class QueryController {
     }
 
     @Operation(summary = "답변 생성", description = "질문에 대한 답변을 생성하는 API")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "답변 생성 성공"),
+            @ApiResponse(responseCode = "404", description = "질문을 찾을 수 없음"),
+            @ApiResponse(responseCode = "500", description = "답변 생성 중 오류")
+    })
     @GetMapping("/queries/{queryId}/answer")
     public ResponseEntity<QueryDto> getAnswer(@PathVariable Integer queryId) {
         QueryDto response = queryService.generateAnswer(queryId);
