@@ -12,7 +12,6 @@ import com.novelbot.api.service.chat.ChatroomService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -34,8 +33,7 @@ public class ChatController {
     })
     @GetMapping
     public ResponseEntity<List<ChatroomDto>> getChatRooms(@RequestHeader("Authorization") String authorizationHeader) {
-        String token = extractTokenFromHeader(authorizationHeader);
-        List<ChatroomDto> chatRooms = chatroomService.getChatroomsByUser(token);
+        List<ChatroomDto> chatRooms = chatroomService.getChatroomsByUser(authorizationHeader);
         return ResponseEntity.ok(chatRooms);
     }
 
@@ -55,8 +53,7 @@ public class ChatController {
                           ", chatTitle=" + (request != null ? request.getChatTitle() : "null"));
         System.out.println("DEBUG: Authorization header=" + (authorizationHeader != null ? "present" : "null"));
         
-        String token = extractTokenFromHeader(authorizationHeader);
-        chatroomService.createChatroom(request.getNovelId(), request.getChatTitle(), token);
+        chatroomService.createChatroom(request.getNovelId(), request.getChatTitle(), authorizationHeader);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
@@ -71,8 +68,7 @@ public class ChatController {
     @DeleteMapping("/{chatId}")
     public ResponseEntity<Void> deleteChatroom(@PathVariable Integer chatId,
             @RequestHeader("Authorization") String authorizationHeader) {
-        String token = extractTokenFromHeader(authorizationHeader);
-        chatroomService.deleteChatroom(chatId, token);
+        chatroomService.deleteChatroom(chatId, authorizationHeader);
         return ResponseEntity.noContent().build();
     }
 
@@ -84,8 +80,7 @@ public class ChatController {
     })
     @GetMapping("/novels")
     public ResponseEntity<List<NovelListDto>> getChatNovelList(@RequestHeader("Authorization") String authorizationHeader) {
-        String token = extractTokenFromHeader(authorizationHeader);
-        List<NovelListDto> novelList = chatroomService.getChatRoomNovelList(token);
+        List<NovelListDto> novelList = chatroomService.getChatRoomNovelList(authorizationHeader);
         return ResponseEntity.ok(novelList);
     }
 
@@ -99,15 +94,8 @@ public class ChatController {
     @GetMapping("/novel/{novelId}")
     public ResponseEntity<List<ChatroomDto>> getChatroomsByNovel(@PathVariable Integer novelId,
             @RequestHeader("Authorization") String authorizationHeader) {
-        String token = extractTokenFromHeader(authorizationHeader);
-        List<ChatroomDto> chatrooms = chatroomService.getChatroomsByNovel(novelId, token);
+        List<ChatroomDto> chatrooms = chatroomService.getChatroomsByNovel(novelId, authorizationHeader);
         return ResponseEntity.ok(chatrooms);
     }
 
-    private String extractTokenFromHeader(String authorizationHeader) {
-        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
-            return authorizationHeader.substring(7);
-        }
-        throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Authorization 헤더가 유효하지 않거나 Bearer 토큰이 없습니다.");
-    }
 }
