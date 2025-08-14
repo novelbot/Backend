@@ -43,6 +43,12 @@ public class RegistrationService {
                     HttpStatus.CONFLICT, "Error Code: 409, Conflict(이미 가입된 이메일입니다)"
             );
         }
+        if(userCreateRequest.getUserNickname() != null && !userCreateRequest.getUserNickname().trim().isEmpty() 
+           && userRepository.existsUserByUserNickname(userCreateRequest.getUserNickname().trim())){
+            throw new ResponseStatusException(
+                    HttpStatus.CONFLICT, "Error Code: 409, Conflict(이미 사용 중인 닉네임입니다)"
+            );
+        }
 
         User user = userCreateRequestMapper.toUser(userCreateRequest);
 

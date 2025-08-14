@@ -61,4 +61,19 @@ public class User {
         String encodedPassword = passwordEncoder.encode(request.getUserPassword().trim());
         return new User(request.getUserName(), encodedPassword, request.getUserNickname(), request.getUserEmail(), "USER");
     }
+
+    public void updateUserInfo(String userName, String userPassword, String userNickname, String userEmail, PasswordEncoder passwordEncoder) {
+        if (userName != null && !userName.trim().isEmpty()) {
+            this.userName = userName.trim();
+        }
+        if (userPassword != null && !userPassword.trim().isEmpty()) {
+            this.userPassword = passwordEncoder.encode(userPassword.trim());
+        }
+        if (userNickname != null) {
+            this.userNickname = userNickname.trim();
+        }
+        if (userEmail != null && !userEmail.trim().isEmpty()) {
+            this.userEmail = userEmail.trim();
+        }
+    }
 }
