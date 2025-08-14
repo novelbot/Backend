@@ -10,7 +10,6 @@ sourceSets{
 		java{
 			exclude '**/com/novelbot/api/utility/**'
 			exclude '**/com/novelbot/api/controller/DBController.java'
-			exclude '**/com/novelbot/api/repository/QueryEpisodeRepository.java'
 		}
 	}
 }
@@ -41,6 +40,7 @@ dependencies {
 	implementation 'org.flywaydb:flyway-core'
 	implementation 'org.flywaydb:flyway-mysql'
 	runtimeOnly 'mysql:mysql-connector-java:8.0.33'
+	runtimeOnly 'com.h2database:h2' // For test profile
 	
 	// File Processing
 	implementation 'org.apache.poi:poi:5.2.3'

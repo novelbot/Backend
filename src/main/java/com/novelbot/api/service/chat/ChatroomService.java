@@ -40,15 +40,20 @@ public class ChatroomService {
 
     // 채팅방 생성
     public void createChatroom(Integer novelId, String chatTitle, String token) {
+        System.out.println("DEBUG: createChatroom called with novelId=" + novelId + ", chatTitle=" + chatTitle + ", token=" + (token != null ? "present" : "null"));
+        
         if (novelId == null || novelId <= 0) {
+            System.out.println("DEBUG: Invalid novelId: " + novelId);
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST, "novelId가 올바르지 않은 형식입니다.");
         }
         if (chatTitle == null || chatTitle.isEmpty()) {
+            System.out.println("DEBUG: Invalid chatTitle: " + chatTitle);
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST, "채팅방 제목이 비어 있습니다.");
         }
         if (token == null || token.trim().isEmpty()) {
+            System.out.println("DEBUG: Invalid token");
             throw new ResponseStatusException(
                     HttpStatus.UNAUTHORIZED, "토큰이 비어 있습니다.");
         }

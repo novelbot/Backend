@@ -32,7 +32,7 @@ public class QueryService {
      * 새로운 질문 생성
      */
     @Transactional
-    public void createQuery(Integer chatId, String queryContent, Integer pageNumber) {
+    public Integer createQuery(Integer chatId, String queryContent) {
         if (chatId == null || queryContent == null || queryContent.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "잘못된 요청입니다.");
         }
@@ -40,8 +40,9 @@ public class QueryService {
         Chatroom chatroom = chatRepository.findById(chatId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "채팅방을 찾을 수 없습니다."));
 
-        Queries query = new Queries(queryContent, pageNumber, chatroom);
-        queryRepository.save(query);
+        Queries query = new Queries(queryContent, null, chatroom);
+        Queries savedQuery = queryRepository.save(query);
+        return savedQuery.getId();
     }
 
     /**
