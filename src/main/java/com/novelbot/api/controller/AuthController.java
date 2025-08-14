@@ -43,7 +43,8 @@ public class AuthController {
             @ApiResponse(responseCode = "401", description = "인증 실패 - 유효하지 않은 토큰")
     })
     @PostMapping("/logout")
-    public ResponseEntity<Void> logout(String token) {
+    public ResponseEntity<Void> logout(@RequestHeader("Authorization") String authorizationHeader) {
+        String token = authorizationHeader.replace("Bearer ", "");
         logoutService.logout(token);
         return ResponseEntity.noContent().build();
     }
