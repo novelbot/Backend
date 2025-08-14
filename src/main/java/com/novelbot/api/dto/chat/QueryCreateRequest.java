@@ -8,6 +8,5 @@ import lombok.*;
 @AllArgsConstructor
 public class QueryCreateRequest {
     private String queryContent;
-    private Integer pageNumber;
     private Integer chatId;
 }

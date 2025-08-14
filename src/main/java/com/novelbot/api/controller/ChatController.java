@@ -50,6 +50,11 @@ public class ChatController {
     @PostMapping
     public ResponseEntity<Void> createChatroom(@RequestBody ChatroomCreateRequest request,
             @RequestHeader("Authorization") String authorizationHeader) {
+        System.out.println("DEBUG: ChatController.createChatroom called");
+        System.out.println("DEBUG: Request - novelId=" + (request != null ? request.getNovelId() : "null") + 
+                          ", chatTitle=" + (request != null ? request.getChatTitle() : "null"));
+        System.out.println("DEBUG: Authorization header=" + (authorizationHeader != null ? "present" : "null"));
+        
         String token = extractTokenFromHeader(authorizationHeader);
         chatroomService.createChatroom(request.getNovelId(), request.getChatTitle(), token);
         return ResponseEntity.status(HttpStatus.CREATED).build();

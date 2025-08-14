@@ -9,7 +9,7 @@ public class QueryResponseDtoMapper {
     public QueryResponse toDto(Queries queries) {
         QueryResponse queryResponse = new QueryResponse();
 
-        queryResponse.setChatId(queryResponse.getChatId());
+        queryResponse.setChatId(queries.getChatRoom().getId());
         queryResponse.setQueryAnswer(queries.getQueryAnswer());
         queryResponse.setPageNumber(queries.getPageNumber());
 
