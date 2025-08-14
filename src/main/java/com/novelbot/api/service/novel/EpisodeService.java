@@ -95,7 +95,7 @@ public class EpisodeService {
     }
 
     // 에피소드 등록
-    public EpisodeDto registerEpisode(EpisodeCreateRequest episodeCreateRequest, String token) {
+    public void createEpisode(EpisodeCreateRequest episodeCreateRequest) {
         if(episodeCreateRequest.getNovelId() == null || episodeCreateRequest.getNovelId() <= 0) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "novelId가 올바르지 않은 형식입니다.");
         }
@@ -107,13 +107,6 @@ public class EpisodeService {
         }
         if (episodeCreateRequest.getContent() == null || episodeCreateRequest.getContent().trim().isEmpty()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "content가 null이거나 비어 있습니다.");
-        }
-
-        String username;
-        try {
-            username = jwtTokenValidator.getUsername(token);
-        } catch (Exception e) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "유효하지 않은 토큰입니다.", e);
         }
 
         Novel novel = novelRepository.findById(episodeCreateRequest.getNovelId())
@@ -134,7 +127,6 @@ public class EpisodeService {
 
         try {
             Episode savedEpisode = episodeRepository.save(episode);
-            return episodeDtoMapper.toDto(Optional.of(savedEpisode));
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "에피소드 등록 중 오류가 발생했습니다.", e);
         }
