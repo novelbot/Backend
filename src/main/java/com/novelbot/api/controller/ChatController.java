@@ -12,6 +12,7 @@ import com.novelbot.api.service.chat.ChatroomService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 
 import java.util.List;
 
@@ -25,7 +26,7 @@ public class ChatController {
         this.chatroomService = chatroomService;
     }
 
-    @Operation(summary = "채팅방 목록 조회", description = "인증된 사용자의 채팅방 목록을 조회하는 API.")
+    @Operation(summary = "채팅방 목록 조회", description = "인증된 사용자의 채팅방 목록을 조회하는 API.", security = @SecurityRequirement(name = "bearerAuth"))
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "채팅방 목록 조회 성공"),
             @ApiResponse(responseCode = "401", description = "인증 실패 - 유효하지 않은 토큰"),
@@ -37,7 +38,7 @@ public class ChatController {
         return ResponseEntity.ok(chatRooms);
     }
 
-    @Operation(summary = "채팅방 생성", description = "새로운 채팅방을 생성하는 API")
+    @Operation(summary = "채팅방 생성", description = "새로운 채팅방을 생성하는 API", security = @SecurityRequirement(name = "bearerAuth"))
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "채팅방 생성 성공"),
             @ApiResponse(responseCode = "400", description = "잘못된 요청 - 유효하지 않은 novelId 또는 채팅방 제목"),
@@ -57,7 +58,7 @@ public class ChatController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    @Operation(summary = "채팅방 삭제", description = "채팅방을 삭제하는 API (소유자만 가능)")
+    @Operation(summary = "채팅방 삭제", description = "채팅방을 삭제하는 API (소유자만 가능)", security = @SecurityRequirement(name = "bearerAuth"))
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "채팅방 삭제 성공"),
             @ApiResponse(responseCode = "401", description = "인증 실패 - 유효하지 않은 토큰"),
@@ -72,7 +73,7 @@ public class ChatController {
         return ResponseEntity.noContent().build();
     }
 
-    @Operation(summary = "채팅방 소설 목록 조회", description = "사용자가 생성한 채팅방의 소설 목록을 조회하는 API")
+    @Operation(summary = "채팅방 소설 목록 조회", description = "사용자가 생성한 채팅방의 소설 목록을 조회하는 API", security = @SecurityRequirement(name = "bearerAuth"))
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "소설 목록 조회 성공"),
             @ApiResponse(responseCode = "401", description = "인증 실패 - 유효하지 않은 토큰"),
@@ -84,7 +85,7 @@ public class ChatController {
         return ResponseEntity.ok(novelList);
     }
 
-    @Operation(summary = "특정 소설의 채팅방 목록 조회", description = "사용자가 특정 소설에 관해 생성한 채팅방 목록을 조회하는 API")
+    @Operation(summary = "특정 소설의 채팅방 목록 조회", description = "사용자가 특정 소설에 관해 생성한 채팅방 목록을 조회하는 API", security = @SecurityRequirement(name = "bearerAuth"))
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "특정 소설의 채팅방 목록 조회 성공"),
             @ApiResponse(responseCode = "400", description = "잘못된 요청 - 유효하지 않은 novelId"),

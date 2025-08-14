@@ -11,6 +11,7 @@ import com.novelbot.api.service.auth.LogoutService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 
 @RestController
 @RequestMapping("/auth")
@@ -37,7 +38,7 @@ public class AuthController {
         return ResponseEntity.ok(response);
     }
 
-    @Operation(summary = "로그아웃", description = "사용자 로그아웃 API")
+    @Operation(summary = "로그아웃", description = "사용자 로그아웃 API", security = @SecurityRequirement(name = "bearerAuth"))
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "로그아웃 성공"),
             @ApiResponse(responseCode = "401", description = "인증 실패 - 유효하지 않은 토큰")
