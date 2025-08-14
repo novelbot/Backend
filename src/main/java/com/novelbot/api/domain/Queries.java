@@ -27,7 +27,7 @@ public class Queries {
     private Integer pageNumber;
 
     @Column(name = "LLM_id", nullable = true)
-    private String field;
+    private Long field;
 
     // 사용자 - 쿼리 일대다 매핑 카디널리티
     @ManyToOne(fetch = FetchType.LAZY)
