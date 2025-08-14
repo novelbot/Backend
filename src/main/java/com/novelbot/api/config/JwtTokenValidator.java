@@ -28,7 +28,15 @@ public class JwtTokenValidator {
         this.userDetailsService = userDetailsService;
     }
 
+    private String extractToken(String token) {
+        if (token != null && token.startsWith("Bearer ")) {
+            return token.substring(7);
+        }
+        return token;
+    }
+
     public String getUsername(String token) {
+        token = extractToken(token);
         try {
             return Jwts.parserBuilder()
                     .setSigningKey(secretKey)
@@ -43,6 +51,7 @@ public class JwtTokenValidator {
     }
 
     public Integer getUserId(String token) {
+        token = extractToken(token);
         try {
             return getClaims(token).get("userId", Integer.class);
         } catch (JwtException e) {
@@ -52,6 +61,7 @@ public class JwtTokenValidator {
     }
 
     public boolean validateToken(String token) {
+        token = extractToken(token);
         try {
             Jwts.parserBuilder()
                     .setSigningKey(secretKey)
@@ -65,6 +75,7 @@ public class JwtTokenValidator {
     }
 
     public Claims getClaims(String token) {
+        token = extractToken(token);
         return Jwts.parserBuilder()
                 .setSigningKey(secretKey)
                 .build()
@@ -73,6 +84,7 @@ public class JwtTokenValidator {
     }
 
     public Authentication getAuthentication(String token) {
+        token = extractToken(token);
         String username = getUsername(token);
 
         UserDetails userDetails = userDetailsService.loadUserByUsername(username);
