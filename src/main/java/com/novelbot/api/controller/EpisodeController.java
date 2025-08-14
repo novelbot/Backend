@@ -1,6 +1,8 @@
 package com.novelbot.api.controller;
 
+import com.novelbot.api.dto.novel.EpisodeCreateRequest;
 import com.novelbot.api.dto.novel.EpisodeListDto;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -37,12 +39,11 @@ public class EpisodeController {
         return ResponseEntity.ok(episodes);
     }
 
-    // @PostMapping
-    // public ResponseEntity<Void> registerEpisode(@PathVariable Integer novelId,
-    // @RequestBody EpisodeCreateRequest request) {
-    // episodeService.createEpisode(novelId, request);
-    // return ResponseEntity.status(HttpStatus.CREATED).build();
-    // }
+     @PostMapping
+     public ResponseEntity<Void> registerEpisode(@RequestBody EpisodeCreateRequest request) {
+     episodeService.createEpisode(request);
+     return ResponseEntity.status(HttpStatus.CREATED).build();
+     }
 
     @Operation(summary = "에피소드 내용 조회", description = "특정 에피소드의 내용을 조회하는 API")
     @ApiResponses(value = {
@@ -50,6 +51,7 @@ public class EpisodeController {
             @ApiResponse(responseCode = "404", description = "웹소설 또는 에피소드를 찾을 수 없음"),
             @ApiResponse(responseCode = "500", description = "서버 오류")
     })
+
     @GetMapping("/{episodeNumber}")
     public ResponseEntity<EpisodeDto> getEpisodeContent(
             @PathVariable Integer novelId,

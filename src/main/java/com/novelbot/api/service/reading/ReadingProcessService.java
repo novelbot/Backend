@@ -80,14 +80,14 @@ public class ReadingProcessService {
     }
 
     // 독서 진도 업데이트
-    public void updateProgress(ReadingProgressDto readingProgressDto, String token) {
-        if (readingProgressDto.getNovelId() == null || readingProgressDto.getNovelId() <= 0) {
+    public void updateProgress(ReadingProgressRequest readingProgressRequest, String token) {
+        if (readingProgressRequest.getNovelId() == null || readingProgressRequest.getNovelId() <= 0) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "novelId가 올바르지 않은 형식입니다.");
         }
-        if (readingProgressDto.getEpisodeId() == null || readingProgressDto.getEpisodeId() <= 0) {
+        if (readingProgressRequest.getEpisodeId() == null || readingProgressRequest.getEpisodeId() <= 0) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "episodeId가 올바르지 않은 형식입니다.");
         }
-        if (readingProgressDto.getLastReadPage() == null || readingProgressDto.getLastReadPage() < 0) {
+        if (readingProgressRequest.getLastReadPage() == null || readingProgressRequest.getLastReadPage() < 0) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "페이지 번호는 0 이상이어야 합니다.");
         }
 
@@ -101,10 +101,10 @@ public class ReadingProcessService {
         User user = userRepository.findByUserName(username)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다."));
 
-        Episode episode = episodeRepository.findById(readingProgressDto.getEpisodeId())
+        Episode episode = episodeRepository.findById(readingProgressRequest.getEpisodeId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "에피소드를 찾을 수 없습니다."));
 
-        Novel novel = novelRepository.findById(readingProgressDto.getNovelId())
+        Novel novel = novelRepository.findById(readingProgressRequest.getNovelId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "소설을 찾을 수 없습니다."));
 
         UserReadingProgress progress = readingProgressRepository.findByUserAndEpisodeAndNovel(user, episode, novel);
@@ -116,7 +116,7 @@ public class ReadingProcessService {
             progress.setNovel(novel);
         }
 
-        progress.setLastReadPage(readingProgressDto.getLastReadPage());
+        progress.setLastReadPage(readingProgressRequest.getLastReadPage());
 
         try {
             readingProgressRepository.save(progress);

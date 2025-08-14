@@ -1,6 +1,7 @@
 package com.novelbot.api.service.novel;
 
 import com.novelbot.api.domain.Novel;
+import com.novelbot.api.dto.novel.NovelCreateRequest;
 import com.novelbot.api.dto.novel.NovelDto;
 import com.novelbot.api.mapper.novel.NovelDtoMapper;
 import com.novelbot.api.repository.NovelRepository;
@@ -98,27 +99,26 @@ public class NovelService {
     }
 
     // 웹소설 등록
-    public NovelDto registerNovel(NovelDto novelDto) {
-        if(novelDto.getTitle() == null || novelDto.getTitle().trim().isEmpty()) {
+    public void createNovel(NovelCreateRequest novelCreateRequest) {
+        if(novelCreateRequest.getTitle() == null || novelCreateRequest.getTitle().trim().isEmpty()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "소설 제목은 필수값입니다.");
         }
-        if(novelDto.getAuthor() == null || novelDto.getAuthor().trim().isEmpty()) {
+        if(novelCreateRequest.getAuthor() == null || novelCreateRequest.getAuthor().trim().isEmpty()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "작가는 필수값입니다.");
         }
 
-        Optional<Novel> existingNovel = novelRepository.findByTitle(novelDto.getTitle());
+        Optional<Novel> existingNovel = novelRepository.findByTitle(novelCreateRequest.getTitle());
         if (existingNovel.isPresent()) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "이미 존재하는 소설입니다.");
         }
 
         Novel novel = new Novel();
-        novel.setTitle(novelDto.getTitle());
-        novel.setAuthor(novelDto.getAuthor());
-        novel.setDescription(novelDto.getDescription());
+        novel.setTitle(novelCreateRequest.getTitle());
+        novel.setAuthor(novelCreateRequest.getAuthor());
+        novel.setDescription(novelCreateRequest.getDescription());
 
         try{
             novelRepository.save(novel);
-            return novelDtoMapper.toDto(novel);
         }catch(Exception e){
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "소설 등록 중 오류가 발생했습니다.", e);
         }
@@ -143,7 +143,7 @@ public class NovelService {
     }
 
     // 웹소설 수정
-    public NovelDto updateNovel(NovelDto novelDto) {
+    public void updateNovel(NovelDto novelDto) {
         if(novelDto.getNovelId() == null || novelDto.getNovelId() <= 0) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "유효하지 않은 novelId입니다.");
         }
@@ -166,7 +166,6 @@ public class NovelService {
 
         try{
             novelRepository.save(novel);
-            return novelDtoMapper.toDto(novel);
         }catch(Exception e){
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "소설 수정 중 오류가 발생했습니다");
         }
