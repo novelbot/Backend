@@ -38,7 +38,7 @@ public class AuthController {
         return ResponseEntity.ok(response);
     }
 
-    @Operation(summary = "로그아웃", description = "사용자 로그아웃 API", security = @SecurityRequirement(name = "bearerAuth"))
+    @Operation(summary = "로그아웃", description = "사용자 로그아웃 API", security = @SecurityRequirement(name = "Bearer Token"))
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "로그아웃 성공"),
             @ApiResponse(responseCode = "401", description = "인증 실패 - 유효하지 않은 토큰")

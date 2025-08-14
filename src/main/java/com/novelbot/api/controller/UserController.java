@@ -39,7 +39,7 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    @Operation(summary = "사용자 정보 조회", description = "JWT 토큰을 통해 사용자 정보를 조회하는 API", security = @SecurityRequirement(name = "bearerAuth"))
+    @Operation(summary = "사용자 정보 조회", description = "JWT 토큰을 통해 사용자 정보를 조회하는 API", security = @SecurityRequirement(name = "Bearer Token"))
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "조회 성공"),
             @ApiResponse(responseCode = "401", description = "인증 실패"),
@@ -51,7 +51,7 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
-    @Operation(summary = "사용자 정보 수정", description = "JWT 토큰을 통해 사용자 정보를 수정하는 API", security = @SecurityRequirement(name = "bearerAuth"))
+    @Operation(summary = "사용자 정보 수정", description = "JWT 토큰을 통해 사용자 정보를 수정하는 API", security = @SecurityRequirement(name = "Bearer Token"))
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "수정 성공"),
             @ApiResponse(responseCode = "401", description = "인증 실패"),
