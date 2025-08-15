@@ -1,5 +1,6 @@
 package com.novelbot.api.controller;
 
+import com.novelbot.api.domain.Novel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -11,14 +12,15 @@ import com.novelbot.api.service.novel.NovelService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 @RestController
 @RequestMapping("/novels")
 public class NovelController {
 
-   
     private final NovelService novelService;
 
     public NovelController(NovelService novelService) {
@@ -76,4 +78,18 @@ public class NovelController {
          novelService.updateNovel(novel);
          return ResponseEntity.ok().build();
      }
+
+    @GetMapping("/{novelId}/cover")
+    public ResponseEntity<String> getCoverImage(@PathVariable Integer novelId) {
+        String coverImageUrl = novelService.getCoverImageUrl(novelId);
+        return ResponseEntity.ok(coverImageUrl);
+    }
+
+     @PostMapping("/{novelId}/cover")
+    public ResponseEntity<Void> uploadCoverImage(@PathVariable Integer novelId, @RequestParam("file") MultipartFile file) throws IOException {
+        Novel updatedNovel = novelService.uploadCoverImage(novelId,file);
+        return ResponseEntity.ok().build();
+     }
+
+
 }

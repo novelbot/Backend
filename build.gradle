@@ -35,6 +35,9 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
+	// Google Cloud Storage
+	implementation 'com.google.cloud:google-cloud-storage:2.40.1'
 	
 	// Database
 	implementation 'org.flywaydb:flyway-core'
