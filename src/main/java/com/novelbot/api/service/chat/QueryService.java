@@ -1,11 +1,18 @@
 package com.novelbot.api.service.chat;
 
 import com.novelbot.api.domain.Chatroom;
+import com.novelbot.api.domain.Purchase;
 import com.novelbot.api.domain.Queries;
+import com.novelbot.api.domain.User;
 import com.novelbot.api.dto.chat.QueryDto;
 import com.novelbot.api.mapper.chat.QueryDtoMapper;
 import com.novelbot.api.repository.ChatRepository;
 import com.novelbot.api.repository.QueryRepository;
+import com.novelbot.api.repository.PurchaseRepository;
+import com.novelbot.api.config.JwtTokenValidator;
+
+import com.novelbot.api.repository.UserRepository;
+import com.novelbot.api.service.API.APIService;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,22 +24,33 @@ import java.util.stream.Collectors;
 @Service
 public class QueryService {
 
+    private final APIService apiService;
     private final QueryRepository queryRepository;
     private final ChatRepository chatRepository;
+    private final PurchaseRepository purchaseRepository;
     private final QueryDtoMapper queryDtoMapper;
+    private final JwtTokenValidator jwtTokenValidator;
+    private final UserRepository userRepository;
 
-    public QueryService(QueryRepository queryRepository, ChatRepository chatRepository,
-            QueryDtoMapper queryDtoMapper) {
+    public QueryService(APIService apiService, QueryRepository queryRepository, ChatRepository chatRepository,
+                        QueryDtoMapper queryDtoMapper, PurchaseRepository purchaseRepository, JwtTokenValidator jwtTokenValidator, UserRepository userRepository) {
+        this.apiService = apiService;
         this.queryRepository = queryRepository;
         this.chatRepository = chatRepository;
+        this.purchaseRepository = purchaseRepository;
         this.queryDtoMapper = queryDtoMapper;
+        this.jwtTokenValidator = jwtTokenValidator;
+        this.userRepository = userRepository;
     }
 
     /**
      * 새로운 질문 생성
      */
     @Transactional
-    public Integer createQuery(Integer chatId, String queryContent) {
+    public QueryDto createQuery(Integer chatId, Integer novelId, String queryContent, String token) {
+        if(token == null || token.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "token이 올바르지 않은 형태입니다.");
+        }
         if (chatId == null || queryContent == null || queryContent.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "잘못된 요청입니다.");
         }
@@ -42,7 +60,31 @@ public class QueryService {
 
         Queries query = new Queries(queryContent, null, chatroom);
         Queries savedQuery = queryRepository.save(query);
-        return savedQuery.getId();
+
+        Integer userId = jwtTokenValidator.getUserId(token);
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "사용자 정보를 찾을 수 없습니다."));
+
+        List<Purchase> purchaseList = purchaseRepository.findByUser(user);
+        List<Integer> episodeIds = List.of();
+
+        int index = 0;
+        while(!purchaseList.isEmpty()) {
+            if(purchaseList.get(index).getNovel().getId().equals(novelId)) {
+                episodeIds.set(index, purchaseList.get(index).getEpisode().getId());
+                index++;
+            }
+        }
+
+        return apiService.chat(queryContent, episodeIds)
+                .map(answer -> {
+                    savedQuery.updateAnswer(answer);
+                    queryRepository.save(savedQuery);
+                    return queryDtoMapper.toDto(savedQuery);
+                })
+                .onErrorMap(ex -> new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
+                        "AI 답변 생성 실패: " + ex.getMessage())).block();
+
     }
 
     /**
@@ -57,23 +99,6 @@ public class QueryService {
         return queryRepository.findByChatRoomId(chatId).stream()
                 .map(queryDtoMapper::toDto)
                 .collect(Collectors.toList());
-    }
-
-    /**
-     * 질문에 대한 답변 생성 및 저장
-     */
-    @Transactional
-    public QueryDto generateAnswer(Integer queryId) {
-        Queries query = queryRepository.findById(queryId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "질문을 찾을 수 없습니다."));
-
-        // TODO: 실제 AI 모델을 연동하여 답변 생성
-        String generatedAnswer = "AI가 생성한 답변입니다: '" + query.getQueryContent() + "'에 대한 답변.";
-
-        query.updateAnswer(generatedAnswer);
-        queryRepository.save(query);
-
-        return queryDtoMapper.toDto(query);
     }
 
     /**
