@@ -13,6 +13,7 @@ import com.novelbot.api.repository.UserRepository;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
@@ -108,6 +109,7 @@ public class ChatroomService {
         }
     }
 
+    @Transactional(readOnly = true)
     public List<NovelListDto> getChatRoomNovelList(String token) {
         Integer userId = jwtTokenValidator.getUserId(token);
         User user = userRepository.findById(userId)
