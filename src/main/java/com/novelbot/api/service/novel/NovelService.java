@@ -4,13 +4,16 @@ import com.novelbot.api.domain.Novel;
 import com.novelbot.api.dto.novel.NovelCreateRequest;
 import com.novelbot.api.dto.novel.NovelDto;
 import com.novelbot.api.mapper.novel.NovelDtoMapper;
+import com.novelbot.api.service.GCS.GCSService;
 import com.novelbot.api.repository.NovelRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -22,6 +25,9 @@ public class NovelService {
 
     @Autowired
     private NovelDtoMapper novelDtoMapper;
+
+    @Autowired
+    private GCSService gcsService;
 
     // 소설 목록 조회
     public List<NovelDto> findAllNovels() {
@@ -169,5 +175,37 @@ public class NovelService {
         }catch(Exception e){
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "소설 수정 중 오류가 발생했습니다");
         }
+    }
+
+    // 표지 이미지 업로드
+    public Novel uploadCoverImage(int novelId, MultipartFile file) throws IOException {
+        Novel novel = novelRepository.findById(novelId)
+                .orElseThrow(() -> new IllegalStateException("소설이 존재하지 않습니다."));
+
+        String image_url = gcsService.uploadFile(file);
+
+        novel.setCoverImageUrl(image_url);
+
+        return novelRepository.save(novel);
+    }
+
+    // 표지 이미지 URL 조회
+    public String getCoverImageUrl(int novelId) {
+        if(novelId <= 0) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "novelId값이 올바르지 않습니다.");
+        }
+
+        Optional<Novel> optionalNovel = novelRepository.findById(novelId);
+        if (optionalNovel.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "소설이 존재하지 않습니다");
+        }
+
+        String coverImageUrl = optionalNovel.get().getCoverImageUrl();
+
+        if(coverImageUrl == null || coverImageUrl.trim().isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "해당 소설의 표지 이미지가 존재하지 않습니다.");
+        }
+
+        return coverImageUrl;
     }
 }
