@@ -1,6 +1,7 @@
 package com.novelbot.api.domain;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -14,10 +15,12 @@ public class Queries {
     @Column(name = "query_id", nullable = false)
     private Integer id;
 
-    @Column(name = "query_content")
+    @Column(name = "query_content", length = 255)
+    @Size(max = 255, message = "쿼리 내용은 255자를 초과할 수 없습니다.")
     private String queryContent;
 
-    @Column(name = "query_answer", nullable = true)
+    @Column(name = "query_answer", nullable = true, length = 255)
+    @Size(max = 255, message = "쿼리 답변은 255자를 초과할 수 없습니다.")
     private String queryAnswer;
 
     @Column(name = "asked_at", nullable = false, columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP")
@@ -26,8 +29,9 @@ public class Queries {
     @Column(name = "page_number")
     private Integer pageNumber;
 
-    @Column(name = "LLM_id", nullable = true)
-    private Long field;
+    @Column(name = "LLM_id", nullable = true, length = 255)
+    @Size(max = 255, message = "LLM ID는 255자를 초과할 수 없습니다.")
+    private String field;
 
     // 사용자 - 쿼리 일대다 매핑 카디널리티
     @ManyToOne(fetch = FetchType.LAZY)
