@@ -32,9 +32,10 @@ public class QueryController {
             @ApiResponse(responseCode = "404", description = "채팅방을 찾을 수 없음")
     })
     @PostMapping("/queries")
-    public ResponseEntity<Integer> createQuery(@PathVariable Integer chatId, @RequestBody QueryCreateRequest request) {
-        Integer queryId = queryService.createQuery(chatId, request.getQueryContent());
-        return ResponseEntity.status(HttpStatus.CREATED).body(queryId);
+    public ResponseEntity<Integer> createQuery(@PathVariable Integer chatId, Integer novelId,
+                                               @RequestBody QueryCreateRequest request, String token) {
+        QueryDto queryDto = queryService.createQuery(chatId, novelId, request.getQueryContent(), token);
+        return ResponseEntity.status(HttpStatus.CREATED).body(chatId);
     }
 
     @Operation(summary = "질문 목록 조회", description = "채팅방의 모든 질문을 조회하는 API")
@@ -59,15 +60,4 @@ public class QueryController {
         return ResponseEntity.noContent().build();
     }
 
-    @Operation(summary = "답변 생성", description = "질문에 대한 답변을 생성하는 API")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "답변 생성 성공"),
-            @ApiResponse(responseCode = "404", description = "질문을 찾을 수 없음"),
-            @ApiResponse(responseCode = "500", description = "답변 생성 중 오류")
-    })
-    @GetMapping("/queries/{queryId}/answer")
-    public ResponseEntity<QueryDto> getAnswer(@PathVariable Integer queryId) {
-        QueryDto response = queryService.generateAnswer(queryId);
-        return ResponseEntity.ok(response);
-    }
 }

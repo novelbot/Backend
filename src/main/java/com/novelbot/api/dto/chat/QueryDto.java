@@ -17,5 +17,5 @@ public class QueryDto {
     private String queryAnswer;
     private String askedAt;
     private Integer pageNumber;
-    private Long field;
+    private String field;
 }
