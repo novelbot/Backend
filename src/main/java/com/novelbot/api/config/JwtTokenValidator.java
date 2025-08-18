@@ -85,9 +85,9 @@ public class JwtTokenValidator {
 
     public Authentication getAuthentication(String token) {
         token = extractToken(token);
-        String username = getUsername(token);
+        Integer userId = getUserId(token);
 
-        UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+        UserDetails userDetails = userDetailsService.loadUserByUserId(userId);
         return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
     }
 }
