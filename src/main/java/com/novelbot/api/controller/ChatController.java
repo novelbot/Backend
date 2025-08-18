@@ -54,7 +54,7 @@ public class ChatController {
                           ", chatTitle=" + (request != null ? request.getChatTitle() : "null"));
         System.out.println("DEBUG: Authorization header=" + (authorizationHeader != null ? "present" : "null"));
         
-        Integer chatId = chatroomService.createChatroom(request.getNovelId(), request.getChatTitle(), authorizationHeader);
+        Integer chatId = chatroomService.createChatroom(request.getNovelId(), request.getEpisodeId(), request.getChatTitle(), authorizationHeader);
         return ResponseEntity.status(HttpStatus.CREATED).body(chatId);
     }
 

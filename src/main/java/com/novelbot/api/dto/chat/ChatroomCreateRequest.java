@@ -8,5 +8,6 @@ import lombok.*;
 @AllArgsConstructor
 public class ChatroomCreateRequest {
     private Integer novelId;
+    private Integer episodeId;
     private String chatTitle;
 }
