@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.*;
 
 import com.novelbot.api.dto.chat.QueryCreateRequest;
 import com.novelbot.api.dto.chat.QueryDto;
+import com.novelbot.api.dto.API.QueryAnswerResponse;
 import com.novelbot.api.service.chat.QueryService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -32,10 +33,11 @@ public class QueryController {
             @ApiResponse(responseCode = "404", description = "채팅방을 찾을 수 없음")
     })
     @PostMapping("/queries")
-    public ResponseEntity<Integer> createQuery(@PathVariable Integer chatId, Integer novelId,
-                                               @RequestBody QueryCreateRequest request, String token) {
-        QueryDto queryDto = queryService.createQuery(chatId, novelId, request.getQueryContent(), token);
-        return ResponseEntity.status(HttpStatus.CREATED).body(chatId);
+    public ResponseEntity<QueryAnswerResponse> createQuery(@PathVariable Integer chatId,
+                                               @RequestBody QueryCreateRequest request,
+                                               @RequestHeader("Authorization") String token) {
+        QueryAnswerResponse response = queryService.createQuery(chatId, request.getQueryContent(), token);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @Operation(summary = "질문 목록 조회", description = "채팅방의 모든 질문을 조회하는 API")

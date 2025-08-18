@@ -47,15 +47,15 @@ public class ChatController {
             @ApiResponse(responseCode = "500", description = "채팅방 생성 중 서버 오류")
     })
     @PostMapping
-    public ResponseEntity<Void> createChatroom(@RequestBody ChatroomCreateRequest request,
+    public ResponseEntity<Integer> createChatroom(@RequestBody ChatroomCreateRequest request,
             @RequestHeader("Authorization") String authorizationHeader) {
         System.out.println("DEBUG: ChatController.createChatroom called");
         System.out.println("DEBUG: Request - novelId=" + (request != null ? request.getNovelId() : "null") + 
                           ", chatTitle=" + (request != null ? request.getChatTitle() : "null"));
         System.out.println("DEBUG: Authorization header=" + (authorizationHeader != null ? "present" : "null"));
         
-        chatroomService.createChatroom(request.getNovelId(), request.getChatTitle(), authorizationHeader);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+        Integer chatId = chatroomService.createChatroom(request.getNovelId(), request.getChatTitle(), authorizationHeader);
+        return ResponseEntity.status(HttpStatus.CREATED).body(chatId);
     }
 
     @Operation(summary = "채팅방 삭제", description = "채팅방을 삭제하는 API (소유자만 가능)", security = @SecurityRequirement(name = "Bearer Token"))
