@@ -59,7 +59,7 @@ public class QueryService {
      * 새로운 질문 생성
      */
     @Transactional
-    public QueryDto createQuery(Integer chatId, Integer novelId, String queryContent, String token) {
+    public QueryAnswerResponse createQuery(Integer chatId, String queryContent, String token) {
         if(token == null || token.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "token이 올바르지 않은 형태입니다.");
         }
@@ -80,6 +80,9 @@ public class QueryService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "사용자 정보를 찾을 수 없습니다."));
 
+        // 채팅방에서 소설 ID 조회
+        Integer novelId = chatroom.getNovel().getId();
+        
         // 구매한 에피소드 ID 수집
         List<Purchase> purchaseList = purchaseRepository.findByUser(user);
         Integer[] isBoughtEpisodes = purchaseList.stream()
@@ -110,7 +113,7 @@ public class QueryService {
                         }
                     }
                     
-                    return queryDtoMapper.toDto(savedQuery);
+                    return response; // QueryAnswerResponse 직접 반환
                 })
                 .onErrorMap(ex -> new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
                         "AI 답변 생성 실패: " + ex.getMessage())).block();

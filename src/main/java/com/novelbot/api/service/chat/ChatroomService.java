@@ -40,7 +40,7 @@ public class ChatroomService {
     }
 
     // 채팅방 생성
-    public void createChatroom(Integer novelId, String chatTitle, String token) {
+    public Integer createChatroom(Integer novelId, String chatTitle, String token) {
         System.out.println("DEBUG: createChatroom called with novelId=" + novelId + ", chatTitle=" + chatTitle + ", token=" + (token != null ? "present" : "null"));
         
         if (novelId == null || novelId <= 0) {
@@ -71,7 +71,8 @@ public class ChatroomService {
         Chatroom chatroom = new Chatroom(chatTitle, user, novel);
 
         try {
-            chatRepository.save(chatroom);
+            Chatroom savedChatroom = chatRepository.save(chatroom);
+            return savedChatroom.getId();
         } catch (Exception e) {
             throw new ResponseStatusException(
                     HttpStatus.INTERNAL_SERVER_ERROR, "채팅방 생성 중 오류가 발생했습니다.", e);
