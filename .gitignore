@@ -34,3 +34,4 @@ DBController.java
 # WebSocket test files (temporary)
 websocket-test.html
 src/main/java/com/novelbot/api/controller/WebSocketTestController.java
+test-data.sql
