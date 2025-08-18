@@ -11,4 +11,5 @@ public class EpisodeListDto {
     private Integer episodeNumber;
     private String episodeTitle;
     private String publicationDate;
+    private Boolean isPurchased;
 }

@@ -34,8 +34,10 @@ public class EpisodeController {
             @ApiResponse(responseCode = "500", description = "서버 오류")
     })
     @GetMapping
-    public ResponseEntity<List<EpisodeListDto>> getEpisodes(@PathVariable Integer novelId) throws IOException {
-        List<EpisodeListDto> episodes = episodeService.findAllByNovelId(novelId);
+    public ResponseEntity<List<EpisodeListDto>> getEpisodes(
+            @PathVariable Integer novelId,
+            @RequestHeader(value = "Authorization", required = false) String token) throws IOException {
+        List<EpisodeListDto> episodes = episodeService.findAllByNovelId(novelId, token);
         return ResponseEntity.ok(episodes);
     }
 

@@ -9,6 +9,7 @@ import com.novelbot.api.mapper.novel.EpisodeListDtoMapper;
 import com.novelbot.api.mapper.novel.EpisodeDtoMapper;
 import com.novelbot.api.repository.EpisodeRepository;
 import com.novelbot.api.repository.NovelRepository;
+import com.novelbot.api.repository.PurchaseRepository;
 import com.novelbot.api.config.JwtTokenValidator;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,6 +39,9 @@ public class EpisodeService {
     @Autowired
     private JwtTokenValidator jwtTokenValidator;
 
+    @Autowired
+    private PurchaseRepository purchaseRepository;
+
     // 웹소설 본문 조회
     public Optional<EpisodeDto> getEpisodeContent(int novelId, int episodeNumber) {
         if(novelId <= 0) {
@@ -65,11 +69,20 @@ public class EpisodeService {
     }
 
     // 특정 소설의 에피소드 목록 조회
-    public List<EpisodeListDto> findAllByNovelId(int novelId) throws IOException {
+    public List<EpisodeListDto> findAllByNovelId(int novelId, String token) throws IOException {
         if(novelId <= 0) {
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST, "Error Code: 400, Conflict(유효하지 않은 novelId)"
             );
+        }
+
+        String username = null;
+        if (token != null && !token.isEmpty()) {
+            try {
+                username = jwtTokenValidator.getUsername(token);
+            } catch (Exception e) {
+                username = null;
+            }
         }
 
         List<Episode> episodeList = episodeRepository.findAllByNovelId(novelId);
@@ -83,7 +96,15 @@ public class EpisodeService {
 
         for (Episode episode : episodeList) {
             try{
-                episodeListDtos.add(episodeListDtoMapper.toDto(episode));
+                EpisodeListDto dto = episodeListDtoMapper.toDto(episode);
+                dto.setIsPurchased(false);
+                
+                if (username != null) {
+                    boolean isPurchased = checkIfPurchased(username, episode.getId());
+                    dto.setIsPurchased(isPurchased);
+                }
+                
+                episodeListDtos.add(dto);
             }catch(Exception e){
                 throw new ResponseStatusException(
                         HttpStatus.CONFLICT, "Error Code: 409, Conflict(에피소드 매핑 중 충돌 발생)"
@@ -92,6 +113,10 @@ public class EpisodeService {
         }
 
         return episodeListDtos;
+    }
+
+    private boolean checkIfPurchased(String username, Integer episodeId) {
+        return purchaseRepository.existsByUserUserNameAndEpisodeId(username, episodeId);
     }
 
     // 에피소드 등록
