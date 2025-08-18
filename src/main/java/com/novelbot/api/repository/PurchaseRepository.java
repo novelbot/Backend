@@ -14,4 +14,6 @@ public interface PurchaseRepository extends JpaRepository<Purchase, Integer> {
     List<Purchase> findByUserAndNovel(User user, Novel novel);
 
     List<Purchase> findByUser(User user);
+    
+    boolean existsByUserUserNameAndEpisodeId(String username, Integer episodeId);
 }
