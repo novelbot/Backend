@@ -11,6 +11,4 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface ChatRepository extends JpaRepository<Chatroom, Integer> {
     List<Chatroom> findByUser(User user);
     List<Chatroom> findByUserAndNovel(User user, Novel novel);
-
-    Chatroom findByQueryId(Integer queryId);
 }

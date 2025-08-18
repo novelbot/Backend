@@ -8,6 +8,4 @@ import java.util.List;
 
 public interface QueryRepository extends JpaRepository<Queries, Integer> {
     List<Queries> findByChatRoomId(Integer chatId);
-
-    Queries findByQueryId(Integer queryId);
 }
