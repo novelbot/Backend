@@ -7,6 +7,7 @@ import com.novelbot.api.dto.auth.LoginRequest;
 import com.novelbot.api.dto.auth.LoginResponse;
 import com.novelbot.api.service.auth.LoginService;
 import com.novelbot.api.service.auth.LogoutService;
+import com.novelbot.api.config.JwtTokenValidator;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -19,10 +20,12 @@ public class AuthController {
 
     private final LoginService loginService;
     private final LogoutService logoutService;
+    private final JwtTokenValidator jwtTokenValidator;
 
-    public AuthController(LoginService loginService, LogoutService logoutService) {
+    public AuthController(LoginService loginService, LogoutService logoutService, JwtTokenValidator jwtTokenValidator) {
         this.loginService = loginService;
         this.logoutService = logoutService;
+        this.jwtTokenValidator = jwtTokenValidator;
     }
 
 

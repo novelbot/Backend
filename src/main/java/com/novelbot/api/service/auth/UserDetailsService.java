@@ -26,4 +26,16 @@ public class UserDetailsService {
                 .roles(user.getUserRole().toString())
                 .build();
     }
+
+    public UserDetails loadUserByUserId(Integer userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with userId: " + userId));
+
+        return org.springframework.security.core.userdetails.User
+                .builder()
+                .username(user.getUserName())
+                .password(user.getUserPassword())
+                .roles(user.getUserRole().toString())
+                .build();
+    }
 }
