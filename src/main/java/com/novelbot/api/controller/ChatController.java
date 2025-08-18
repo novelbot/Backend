@@ -13,6 +13,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.util.List;
 
@@ -40,7 +42,8 @@ public class ChatController {
 
     @Operation(summary = "채팅방 생성", description = "새로운 채팅방을 생성하는 API", security = @SecurityRequirement(name = "Bearer Token"))
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "채팅방 생성 성공"),
+            @ApiResponse(responseCode = "201", description = "채팅방 생성 성공", 
+                        content = @Content(schema = @Schema(implementation = Integer.class))),
             @ApiResponse(responseCode = "400", description = "잘못된 요청 - 유효하지 않은 novelId 또는 채팅방 제목"),
             @ApiResponse(responseCode = "401", description = "인증 실패 - 유효하지 않은 토큰"),
             @ApiResponse(responseCode = "404", description = "사용자 또는 소설을 찾을 수 없음"),

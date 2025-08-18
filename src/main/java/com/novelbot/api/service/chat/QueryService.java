@@ -118,6 +118,7 @@ public class QueryService {
             List<Purchase> purchaseList = purchaseRepository.findByUser(user);
             Integer[] isBoughtEpisodes = purchaseList.stream()
                     .filter(purchase -> purchase.getNovel().getId().equals(novelId))
+                    .filter(purchase -> purchase.getIsPurchase()) // 실제로 구매한 것만 필터링
                     .map(purchase -> purchase.getEpisode().getId())
                     .toArray(Integer[]::new);
 

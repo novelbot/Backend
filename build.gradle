@@ -8,7 +8,7 @@ plugins {
 sourceSets{
 	main{
 		java{
-			exclude '**/com/novelbot/api/utility/**'
+			//exclude '**/com/novelbot/api/utility/**'
 			exclude '**/com/novelbot/api/controller/DBController.java'
 		}
 	}
@@ -89,6 +89,7 @@ task runAITest(type: JavaExec) {
 	classpath = sourceSets.main.runtimeClasspath
 	mainClass = 'com.novelbot.api.test.AIServerTest'
 }
+
 
 // 테스트 설정
 test {
