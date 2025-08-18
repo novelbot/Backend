@@ -84,6 +84,11 @@ dependencies {
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
+task runAITest(type: JavaExec) {
+	classpath = sourceSets.main.runtimeClasspath
+	mainClass = 'com.novelbot.api.test.AIServerTest'
+}
+
 // 테스트 설정
 test {
     useJUnitPlatform()

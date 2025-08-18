@@ -1,5 +1,6 @@
 package com.novelbot.api.controller;
 
+import com.novelbot.api.dto.API.QueryAsk;
 import com.novelbot.api.service.API.APIService;
 
 import org.springframework.http.ResponseEntity;
@@ -47,8 +48,14 @@ public class APIController {
             return Mono.just(ResponseEntity.badRequest().body("Message and episode_ids are required"));
         }
 
-        return apiService.chat(message, episodeIds)
-                .map(response -> ResponseEntity.ok(response))
+        // QueryAsk 객체 생성
+        QueryAsk queryAsk = new QueryAsk();
+        queryAsk.setQueryContent(message);
+        queryAsk.setIsBoughtEpisodes(episodeIds.toArray(new Integer[0]));
+        queryAsk.setUsingContext(false);
+        
+        return apiService.chat(queryAsk)
+                .map(response -> ResponseEntity.ok(response.getAnswerContent()))
                 .onErrorResume(ex -> Mono.just(ResponseEntity.status(500).body(ex.getMessage())));
     }
 }

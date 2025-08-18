@@ -2,9 +2,11 @@ package com.novelbot.api.domain;
 
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
+@NoArgsConstructor
 @Table(name = "episode_query")
 public class QueryEpisode {
     @Id
@@ -22,4 +24,9 @@ public class QueryEpisode {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "query_id", nullable = false)
     private Queries queries;
+    
+    public QueryEpisode(Episode episode, Queries queries) {
+        this.episode = episode;
+        this.queries = queries;
+    }
 }

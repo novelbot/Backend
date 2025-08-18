@@ -1,6 +1,11 @@
 package com.novelbot.api.service.API;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.novelbot.api.dto.API.QueryAsk;
+import com.novelbot.api.dto.API.QueryAnswerResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -13,19 +18,30 @@ import java.util.Map;
 public class APIService {
     @Autowired
     private WebClient webClient;
+    
+    @Value("${ai.server.url}")
+    private String aiServerUrl;
+    
+    @Value("${ai.server.username}")
+    private String aiUsername;
+    
+    @Value("${ai.server.password}")
+    private String aiPassword;
+    
+    private String jwtToken; // JWT 토큰 저장
 
     // GET 요청
     public Mono<String> getAPI(){
         return webClient.get()
-                .uri("http://ec2-52-90-153-224.compute-1.amazonaws.com/")
+                .uri(aiServerUrl + "/")
                 .retrieve()
                 .bodyToMono(String.class);
     }
 
-    // 로그인 요청(POST)
+    // 로그인 요청(POST) - JWT 토큰 획득 및 저장
     public Mono<String> login(String username, String password, boolean rememberMe) {
         return webClient.post()
-                .uri("http://ec2-52-90-153-224.compute-1.amazonaws.com/api/v1/auth/login")
+                .uri(aiServerUrl + "/api/v1/auth/login")
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(Map.of(
                         "username", username,
@@ -34,27 +50,46 @@ public class APIService {
                 ))
                 .retrieve()
                 .bodyToMono(String.class)
+                .map(response -> {
+                    try {
+                        ObjectMapper mapper = new ObjectMapper();
+                        JsonNode jsonNode = mapper.readTree(response);
+                        return jsonNode.get("access_token").asText();
+                    } catch (Exception e) {
+                        throw new RuntimeException("Failed to parse login response: " + e.getMessage());
+                    }
+                })
+                .doOnNext(token -> this.jwtToken = token) // JWT 토큰 저장
                 .onErrorMap(ex -> new RuntimeException("Login failed: " + ex.getMessage()));
     }
+    
+    // JWT 토큰으로 자동 로그인
+    public Mono<String> ensureAuthenticated() {
+        if (jwtToken != null && !jwtToken.isEmpty()) {
+            return Mono.just(jwtToken);
+        }
+        // 환경 변수에서 로그인 정보 사용
+        return login(aiUsername, aiPassword, false);
+    }
 
-    // 대화 요청(POST)
-    public Mono<String> chat(String message, List<Integer> episodeIds) {
-
-        return webClient.post()
-                .uri("http://ec2-52-90-153-224.compute-1.amazonaws.com/api/v1/episode/chat")
-                .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(Map.of(
-                        "message", message,
-                        "episode_ids", episodeIds))
-                .retrieve()
-                .bodyToMono(String.class)
+    // 대화 요청(POST) - QueryAsk 사용, JWT 인증 포함, QueryAnswerResponse 반환
+    public Mono<QueryAnswerResponse> chat(QueryAsk queryAsk) {
+        return ensureAuthenticated()
+                .<QueryAnswerResponse>flatMap(token -> webClient.post()
+                        .uri(aiServerUrl + "/api/v1/episode/chat")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", "Bearer " + token)
+                        .bodyValue(queryAsk)
+                        .retrieve()
+                        .bodyToMono(QueryAnswerResponse.class))
                 .onErrorMap(ex -> new RuntimeException("Chat API call failed: " + ex.getMessage()));
     }
+
 
     // DELETE 요청 방식
     public Mono<String> deleteAPI(){
         return webClient.delete()
-                .uri("http://ec2-52-90-153-224.compute-1.amazonaws.com/", 1)
+                .uri(aiServerUrl + "/", 1)
                 .retrieve()
                 .bodyToMono(String.class);
     }
@@ -62,7 +97,7 @@ public class APIService {
     // PATCH 요청 방식
     public Mono<String> patchAPI(){
         return webClient.patch()
-                .uri("http://ec2-52-90-153-224.compute-1.amazonaws.com/")
+                .uri(aiServerUrl + "/")
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(Map.of("title", "patched title"))
                 .retrieve()
