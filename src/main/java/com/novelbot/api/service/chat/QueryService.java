@@ -140,7 +140,7 @@ public class QueryService {
                 updateQueryWithResponse(queryId, response);
                 
                 // WebSocket으로 클라이언트에게 결과 전송
-                messagingTemplate.convertAndSend("/topic/chat/" + chatId, response);
+                messagingTemplate.convertAndSend("/topic/query/" + queryId, response);
             }
 
         } catch (Exception e) {

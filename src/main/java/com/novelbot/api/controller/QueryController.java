@@ -9,11 +9,11 @@ import com.novelbot.api.dto.chat.QueryDto;
 import com.novelbot.api.service.chat.QueryService;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import java.util.List;
-
-
 
 @RestController
 @RequestMapping("/chatrooms/{chatId}")
@@ -27,14 +27,16 @@ public class QueryController {
 
     @Operation(summary = "질문 생성", description = "새로운 질문을 생성하는 API")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "질문 생성 성공"),
+            @ApiResponse(responseCode = "201", description = "생성된 질문 ID 반환",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = Integer.class, example = "123"))),
             @ApiResponse(responseCode = "400", description = "잘못된 요청"),
             @ApiResponse(responseCode = "404", description = "채팅방을 찾을 수 없음")
     })
     @PostMapping("/queries")
     public ResponseEntity<Integer> createQuery(@PathVariable Integer chatId,
-                                               @RequestBody QueryCreateRequest request,
-                                               @RequestHeader("Authorization") String token) {
+            @RequestBody QueryCreateRequest request,
+            @RequestHeader("Authorization") String token) {
         Integer queryId = queryService.createQueryAsync(chatId, request.getQueryContent(), token);
         return ResponseEntity.status(HttpStatus.CREATED).body(queryId);
     }
@@ -48,7 +50,7 @@ public class QueryController {
     })
     @GetMapping("/queries")
     public ResponseEntity<List<QueryDto>> getQueries(@PathVariable Integer chatId,
-                                                     @RequestHeader("Authorization") String token) {
+            @RequestHeader("Authorization") String token) {
         List<QueryDto> queries = queryService.getQueriesByChatId(chatId, token);
         return ResponseEntity.ok(queries);
     }
