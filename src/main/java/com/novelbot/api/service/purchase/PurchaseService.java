@@ -66,7 +66,9 @@ public class PurchaseService {
         Episode episode = episodeRepository.findById(purchaseRequest.getEpisodeId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "에피소드를 찾을 수 없습니다."));
 
-        if(purchaseRequest.getIspurchased()) {
+        // DB에서 이미 구매한 에피소드인지 확인
+        boolean alreadyPurchased = purchaseRepository.existsByUserUserNameAndEpisodeId(username, purchaseRequest.getEpisodeId());
+        if(alreadyPurchased) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "이미 구매한 에피소드입니다.");
         }
 
