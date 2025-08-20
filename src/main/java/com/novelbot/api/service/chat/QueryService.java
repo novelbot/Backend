@@ -166,7 +166,12 @@ public class QueryService {
                 // WebSocket으로 클라이언트에게 결과 전송
                 System.out.println("🔔 WebSocket 메시지 전송: /topic/query/" + queryId);
                 System.out.println("📤 전송 데이터: " + response.getAnswerContent());
-                messagingTemplate.convertAndSend("/topic/query/" + queryId, response);
+                try {
+                    messagingTemplate.convertAndSend("/topic/query/" + queryId, response);
+                    System.out.println("✅ WebSocket 메시지 전송 성공");
+                } catch (Exception wsEx) {
+                    System.out.println("❌ WebSocket 메시지 전송 실패: " + wsEx.getMessage());
+                }
             } else {
                 // 응답이 null인 경우
                 updateQueryWithError(queryId, "AI 서버로부터 응답을 받지 못했습니다.");
@@ -174,7 +179,12 @@ public class QueryService {
                 // WebSocket으로 에러 메시지 전송
                 QueryAnswerResponse errorResponse = new QueryAnswerResponse();
                 errorResponse.setAnswerContent("AI 서버로부터 응답을 받지 못했습니다.");
-                messagingTemplate.convertAndSend("/topic/query/" + queryId, errorResponse);
+                try {
+                    messagingTemplate.convertAndSend("/topic/query/" + queryId, errorResponse);
+                    System.out.println("✅ WebSocket 에러 메시지 전송 성공");
+                } catch (Exception wsEx) {
+                    System.out.println("❌ WebSocket 에러 메시지 전송 실패: " + wsEx.getMessage());
+                }
             }
 
         } catch (Exception e) {
@@ -187,7 +197,12 @@ public class QueryService {
             // WebSocket으로 에러 메시지 전송
             QueryAnswerResponse errorResponse = new QueryAnswerResponse();
             errorResponse.setAnswerContent(errorMessage);
-            messagingTemplate.convertAndSend("/topic/query/" + queryId, errorResponse);
+            try {
+                messagingTemplate.convertAndSend("/topic/query/" + queryId, errorResponse);
+                System.out.println("✅ WebSocket 예외 에러 메시지 전송 성공");
+            } catch (Exception wsEx) {
+                System.out.println("❌ WebSocket 예외 에러 메시지 전송 실패: " + wsEx.getMessage());
+            }
         }
     }
 
