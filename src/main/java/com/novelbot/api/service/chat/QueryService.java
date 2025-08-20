@@ -117,7 +117,11 @@ public class QueryService {
 
             // 채팅방에서 소설 ID와 현재 에피소드 정보 조회
             Integer novelId = chatroom.getNovel().getId();
-            Episode currentEpisode = chatroom.getEpisode();
+            Integer currentEpisodeId = chatroom.getEpisode().getId();
+            Episode currentEpisode = episodeRepository.findById(currentEpisodeId).orElse(null);
+            if (currentEpisode == null) {
+                return; // 현재 에피소드를 찾을 수 없으면 처리 중단
+            }
             Integer currentEpisodeNumber = currentEpisode.getEpisodeNumber();
             
             // 구매한 에피소드 ID 수집 (현재 회차보다 뒤의 에피소드는 제외)
