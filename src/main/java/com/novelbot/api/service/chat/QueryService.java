@@ -157,7 +157,13 @@ public class QueryService {
                         
                         // 각 청크를 실시간으로 WebSocket을 통해 전송
                         try {
-                            messagingTemplate.convertAndSend("/topic/query/" + queryId + "/stream", chunk);
+                            // 스트림 청크 형태로 전송
+                            java.util.Map<String, Object> streamData = new java.util.HashMap<>();
+                            streamData.put("message", chunk);
+                            streamData.put("isIncremental", true);
+                            streamData.put("isComplete", false);
+                            
+                            messagingTemplate.convertAndSend("/topic/query/" + queryId, streamData);
                             System.out.println("✅ WebSocket 스트림 청크 전송 성공");
                         } catch (Exception wsEx) {
                             System.out.println("❌ WebSocket 스트림 청크 전송 실패: " + wsEx.getMessage());
@@ -172,7 +178,12 @@ public class QueryService {
                         
                         // 스트림 완료 신호 전송
                         try {
-                            messagingTemplate.convertAndSend("/topic/query/" + queryId + "/complete", finalAnswer);
+                            java.util.Map<String, Object> completeData = new java.util.HashMap<>();
+                            completeData.put("message", finalAnswer);
+                            completeData.put("isIncremental", false);
+                            completeData.put("isComplete", true);
+                            
+                            messagingTemplate.convertAndSend("/topic/query/" + queryId, completeData);
                             System.out.println("✅ WebSocket 스트림 완료 신호 전송 성공");
                         } catch (Exception wsEx) {
                             System.out.println("❌ WebSocket 스트림 완료 신호 전송 실패: " + wsEx.getMessage());
@@ -185,7 +196,13 @@ public class QueryService {
                         
                         // WebSocket으로 에러 메시지 전송
                         try {
-                            messagingTemplate.convertAndSend("/topic/query/" + queryId + "/error", "답변 생성 중 오류가 발생했습니다: " + ex.getMessage());
+                            java.util.Map<String, Object> errorData = new java.util.HashMap<>();
+                            errorData.put("message", "답변 생성 중 오류가 발생했습니다: " + ex.getMessage());
+                            errorData.put("isIncremental", false);
+                            errorData.put("isComplete", true);
+                            errorData.put("isError", true);
+                            
+                            messagingTemplate.convertAndSend("/topic/query/" + queryId, errorData);
                             System.out.println("✅ WebSocket 스트림 에러 메시지 전송 성공");
                         } catch (Exception wsEx) {
                             System.out.println("❌ WebSocket 스트림 에러 메시지 전송 실패: " + wsEx.getMessage());
@@ -201,10 +218,14 @@ public class QueryService {
             updateQueryWithError(queryId, errorMessage);
             
             // WebSocket으로 에러 메시지 전송
-            QueryAnswerResponse errorResponse = new QueryAnswerResponse();
-            errorResponse.setAnswerContent(errorMessage);
             try {
-                messagingTemplate.convertAndSend("/topic/query/" + queryId, errorResponse);
+                java.util.Map<String, Object> errorData = new java.util.HashMap<>();
+                errorData.put("message", errorMessage);
+                errorData.put("isIncremental", false);
+                errorData.put("isComplete", true);
+                errorData.put("isError", true);
+                
+                messagingTemplate.convertAndSend("/topic/query/" + queryId, errorData);
                 System.out.println("✅ WebSocket 예외 에러 메시지 전송 성공");
             } catch (Exception wsEx) {
                 System.out.println("❌ WebSocket 예외 에러 메시지 전송 실패: " + wsEx.getMessage());
