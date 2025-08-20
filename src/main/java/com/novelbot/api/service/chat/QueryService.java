@@ -141,11 +141,25 @@ public class QueryService {
                 
                 // WebSocket으로 클라이언트에게 결과 전송
                 messagingTemplate.convertAndSend("/topic/query/" + queryId, response);
+            } else {
+                // 응답이 null인 경우
+                updateQueryWithError(queryId, "AI 서버로부터 응답을 받지 못했습니다.");
+                
+                // WebSocket으로 에러 메시지 전송
+                QueryAnswerResponse errorResponse = new QueryAnswerResponse();
+                errorResponse.setAnswerContent("AI 서버로부터 응답을 받지 못했습니다.");
+                messagingTemplate.convertAndSend("/topic/query/" + queryId, errorResponse);
             }
 
         } catch (Exception e) {
             // 예외 발생 시 에러 메시지로 업데이트
-            updateQueryWithError(queryId, "답변 생성 중 오류가 발생했습니다: " + e.getMessage());
+            String errorMessage = "답변 생성 중 오류가 발생했습니다: " + e.getMessage();
+            updateQueryWithError(queryId, errorMessage);
+            
+            // WebSocket으로 에러 메시지 전송
+            QueryAnswerResponse errorResponse = new QueryAnswerResponse();
+            errorResponse.setAnswerContent(errorMessage);
+            messagingTemplate.convertAndSend("/topic/query/" + queryId, errorResponse);
         }
     }
 
