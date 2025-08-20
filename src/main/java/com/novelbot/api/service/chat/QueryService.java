@@ -92,6 +92,7 @@ public class QueryService {
         Queries savedQuery = queryRepository.save(query);
 
         // AI 서버 호출을 별도 스레드에서 처리 (응답 대기)
+        System.out.println("🚀 질문 생성 완료, 비동기 AI 처리 시작 - QueryID: " + savedQuery.getId() + ", ChatID: " + chatId);
         CompletableFuture.runAsync(() -> {
             processAIResponse(savedQuery.getId(), chatId, queryContent, userId);
         });
@@ -105,6 +106,7 @@ public class QueryService {
      */
     @Transactional
     public void processAIResponse(Integer queryId, Integer chatId, String queryContent, Integer userId) {
+        System.out.println("⚙️ processAIResponse 시작 - QueryID: " + queryId + ", ChatID: " + chatId + ", UserID: " + userId);
         try {
             // 클라이언트가 구독할 시간을 확보하기 위해 잠시 대기
             Thread.sleep(200); // 200ms 대기
@@ -112,6 +114,7 @@ public class QueryService {
             User user = userRepository.findById(userId).orElse(null);
             Chatroom chatroom = chatRepository.findById(chatId).orElse(null);
             if (user == null || chatroom == null) {
+                System.out.println("❌ 사용자 또는 채팅방 정보를 찾을 수 없습니다 - User: " + (user != null) + ", Chatroom: " + (chatroom != null));
                 return; // 데이터가 없으면 처리 중단
             }
 
@@ -176,6 +179,8 @@ public class QueryService {
 
         } catch (Exception e) {
             // 예외 발생 시 에러 메시지로 업데이트
+            System.out.println("💥 processAIResponse 예외 발생: " + e.getMessage());
+            e.printStackTrace();
             String errorMessage = "답변 생성 중 오류가 발생했습니다: " + e.getMessage();
             updateQueryWithError(queryId, errorMessage);
             
