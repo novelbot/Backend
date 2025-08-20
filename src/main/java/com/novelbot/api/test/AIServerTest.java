@@ -53,7 +53,7 @@ public class AIServerTest {
         queryAsk.setIsBoughtEpisodes(new Integer[]{1, 2, 3});
         // queryAsk.setNovelId(1); // AI 서버에서 지원하지 않음
         queryAsk.setUsingContext(false);
-        queryAsk.setBeforeQuery(null);
+        // queryAsk.setBeforeQuery(null); // beforeQuery 필드가 주석처리됨
         
         System.out.println("QueryAsk 생성 완료:");
         System.out.println("- 질문: " + queryAsk.getQueryContent());

@@ -82,7 +82,21 @@ public class APIService {
                         .bodyValue(queryAsk)
                         .retrieve()
                         .bodyToMono(QueryAnswerResponse.class))
-                .onErrorMap(ex -> new RuntimeException("Chat API call failed: " + ex.getMessage()));
+                .onErrorResume(ex -> {
+                    // 401 에러 시 토큰 재발급 후 재시도
+                    if (ex.getMessage() != null && ex.getMessage().contains("401")) {
+                        this.jwtToken = null; // 토큰 초기화
+                        return login(aiUsername, aiPassword, false)
+                                .flatMap(newToken -> webClient.post()
+                                        .uri(aiServerUrl + "/api/v1/episode/chat")
+                                        .contentType(MediaType.APPLICATION_JSON)
+                                        .header("Authorization", "Bearer " + newToken)
+                                        .bodyValue(queryAsk)
+                                        .retrieve()
+                                        .bodyToMono(QueryAnswerResponse.class));
+                    }
+                    return Mono.error(new RuntimeException("Chat API call failed: " + ex.getMessage()));
+                });
     }
 
 
