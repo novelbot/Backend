@@ -21,7 +21,6 @@ import com.novelbot.api.repository.UserRepository;
 import com.novelbot.api.service.API.APIService;
 import org.springframework.http.HttpStatus;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
@@ -147,45 +146,52 @@ public class QueryService {
             System.out.println("📋 AI 서버에 전달할 구매 에피소드 ID들: " + java.util.Arrays.toString(isBoughtEpisodes));
             System.out.println("📝 Query 내용: " + queryContent);
 
-            // AI 서버 호출 (동기적으로 응답 대기)
-            System.out.println("🤖 AI 서버에 요청 전송 중... queryId: " + queryId);
-            QueryAnswerResponse response = apiService.chat(queryAsk)
-                    .doOnError(ex -> {
-                        System.out.println("❌ AI 서버 오류: " + ex.getMessage());
-                        // 에러 발생 시 질문 상태 업데이트
-                        updateQueryWithError(queryId, "답변 생성 중 오류가 발생했습니다.");
-                    })
-                    .block(); // 완전히 응답을 받을 때까지 대기
+            // AI 서버 호출 (스트림 응답 처리)
+            System.out.println("🤖 AI 서버에 스트림 요청 전송 중... queryId: " + queryId);
+            StringBuilder fullResponse = new StringBuilder();
             
-            System.out.println("✅ AI 서버 응답 완료: " + (response != null ? "성공" : "실패"));
-
-            if (response != null) {
-                // 성공적으로 응답 받음
-                updateQueryWithResponse(queryId, response);
-                
-                // WebSocket으로 클라이언트에게 결과 전송
-                System.out.println("🔔 WebSocket 메시지 전송: /topic/query/" + queryId);
-                System.out.println("📤 전송 데이터: " + response.getAnswerContent());
-                try {
-                    messagingTemplate.convertAndSend("/topic/query/" + queryId, response);
-                    System.out.println("✅ WebSocket 메시지 전송 성공");
-                } catch (Exception wsEx) {
-                    System.out.println("❌ WebSocket 메시지 전송 실패: " + wsEx.getMessage());
-                }
-            } else {
-                // 응답이 null인 경우
-                updateQueryWithError(queryId, "AI 서버로부터 응답을 받지 못했습니다.");
-                
-                // WebSocket으로 에러 메시지 전송
-                QueryAnswerResponse errorResponse = new QueryAnswerResponse();
-                errorResponse.setAnswerContent("AI 서버로부터 응답을 받지 못했습니다.");
-                try {
-                    messagingTemplate.convertAndSend("/topic/query/" + queryId, errorResponse);
-                    System.out.println("✅ WebSocket 에러 메시지 전송 성공");
-                } catch (Exception wsEx) {
-                    System.out.println("❌ WebSocket 에러 메시지 전송 실패: " + wsEx.getMessage());
-                }
-            }
+            apiService.chatStream(queryAsk)
+                    .doOnNext(chunk -> {
+                        System.out.println("📨 스트림 청크 수신: " + chunk.length() + "자");
+                        fullResponse.append(chunk);
+                        
+                        // 각 청크를 실시간으로 WebSocket을 통해 전송
+                        try {
+                            messagingTemplate.convertAndSend("/topic/query/" + queryId + "/stream", chunk);
+                            System.out.println("✅ WebSocket 스트림 청크 전송 성공");
+                        } catch (Exception wsEx) {
+                            System.out.println("❌ WebSocket 스트림 청크 전송 실패: " + wsEx.getMessage());
+                        }
+                    })
+                    .doOnComplete(() -> {
+                        System.out.println("✅ AI 서버 스트림 응답 완료");
+                        String finalAnswer = fullResponse.toString();
+                        
+                        // 최종 응답으로 질문 업데이트
+                        updateQueryWithStreamResponse(queryId, finalAnswer);
+                        
+                        // 스트림 완료 신호 전송
+                        try {
+                            messagingTemplate.convertAndSend("/topic/query/" + queryId + "/complete", finalAnswer);
+                            System.out.println("✅ WebSocket 스트림 완료 신호 전송 성공");
+                        } catch (Exception wsEx) {
+                            System.out.println("❌ WebSocket 스트림 완료 신호 전송 실패: " + wsEx.getMessage());
+                        }
+                    })
+                    .doOnError(ex -> {
+                        System.out.println("❌ AI 서버 스트림 오류: " + ex.getMessage());
+                        // 에러 발생 시 질문 상태 업데이트
+                        updateQueryWithError(queryId, "답변 생성 중 오류가 발생했습니다: " + ex.getMessage());
+                        
+                        // WebSocket으로 에러 메시지 전송
+                        try {
+                            messagingTemplate.convertAndSend("/topic/query/" + queryId + "/error", "답변 생성 중 오류가 발생했습니다: " + ex.getMessage());
+                            System.out.println("✅ WebSocket 스트림 에러 메시지 전송 성공");
+                        } catch (Exception wsEx) {
+                            System.out.println("❌ WebSocket 스트림 에러 메시지 전송 실패: " + wsEx.getMessage());
+                        }
+                    })
+                    .subscribe(); // 스트림 구독 시작
 
         } catch (Exception e) {
             // 예외 발생 시 에러 메시지로 업데이트
@@ -228,6 +234,19 @@ public class QueryService {
                     }
                 }
             }
+        }
+    }
+    
+    /**
+     * 질문에 스트림 AI 응답 업데이트
+     */
+    @Transactional
+    public void updateQueryWithStreamResponse(Integer queryId, String finalAnswer) {
+        Queries query = queryRepository.findById(queryId).orElse(null);
+        if (query != null) {
+            query.updateAnswer(finalAnswer);
+            queryRepository.save(query);
+            System.out.println("✅ Query 업데이트 완료 - QueryID: " + queryId + ", 답변 길이: " + finalAnswer.length() + "자");
         }
     }
 

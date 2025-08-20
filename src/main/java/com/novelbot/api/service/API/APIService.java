@@ -10,6 +10,7 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
+import reactor.core.publisher.Flux;
 
 import java.util.List;
 import java.util.Map;
@@ -147,11 +148,50 @@ public class APIService {
         return login(aiUsername, aiPassword, false);
     }
 
-    // 대화 요청(POST) - QueryAsk 사용, JWT 인증 포함, QueryAnswerResponse 반환
+    // 대화 요청(POST) - QueryAsk 사용, JWT 인증 포함, SSE 스트림 반환
+    public Flux<String> chatStream(QueryAsk queryAsk) {
+        return ensureAuthenticated()
+                .flatMapMany(token -> webClient.post()
+                        .uri(aiServerUrl + "/api/v1/episode/chat/stream")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", "Bearer " + token)
+                        .accept(MediaType.TEXT_EVENT_STREAM)
+                        .bodyValue(queryAsk)
+                        .retrieve()
+                        .bodyToFlux(String.class))
+                .onErrorResume(ex -> {
+                    // 401 에러 시 토큰 재발급 후 재시도
+                    if (ex.getMessage() != null && ex.getMessage().contains("401")) {
+                        this.jwtToken = null; // 기존 토큰 초기화
+                        
+                        // 1차: Refresh token으로 토큰 재발급 시도
+                        return refreshAccessToken()
+                                .onErrorResume(refreshEx -> {
+                                    // 2차: Refresh token 실패 시 일반 로그인으로 fallback
+                                    this.refreshToken = null; // Refresh 토큰도 초기화
+                                    return login(aiUsername, aiPassword, false);
+                                })
+                                .flatMapMany(newAccessToken -> {
+                                    // 새로운 토큰으로 원래 요청 재시도
+                                    return webClient.post()
+                                            .uri(aiServerUrl + "/api/v1/episode/chat/stream")
+                                            .contentType(MediaType.APPLICATION_JSON)
+                                            .header("Authorization", "Bearer " + newAccessToken)
+                                            .accept(MediaType.TEXT_EVENT_STREAM)
+                                            .bodyValue(queryAsk)
+                                            .retrieve()
+                                            .bodyToFlux(String.class);
+                                });
+                    }
+                    return Flux.error(new RuntimeException("Chat API call failed: " + ex.getMessage()));
+                });
+    }
+    
+    // 기존 단일 응답 메서드도 유지 (비스트림 엔드포인트용)
     public Mono<QueryAnswerResponse> chat(QueryAsk queryAsk) {
         return ensureAuthenticated()
                 .<QueryAnswerResponse>flatMap(token -> webClient.post()
-                        .uri(aiServerUrl + "/api/v1/episode/chat/stream")
+                        .uri(aiServerUrl + "/api/v1/episode/chat")
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("Authorization", "Bearer " + token)
                         .bodyValue(queryAsk)
@@ -172,7 +212,7 @@ public class APIService {
                                 .flatMap(newAccessToken -> {
                                     // 새로운 토큰으로 원래 요청 재시도
                                     return webClient.post()
-                                            .uri(aiServerUrl + "/api/v1/episode/chat/stream")
+                                            .uri(aiServerUrl + "/api/v1/episode/chat")
                                             .contentType(MediaType.APPLICATION_JSON)
                                             .header("Authorization", "Bearer " + newAccessToken)
                                             .bodyValue(queryAsk)
