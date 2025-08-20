@@ -131,6 +131,11 @@ public class QueryService {
             queryAsk.setQueryContent(queryContent);
             queryAsk.setIsBoughtEpisodes(isBoughtEpisodes);
 
+            // 구매한 에피소드 ID들 콘솔 출력
+            System.out.println("📚 사용자 ID: " + userId + ", 소설 ID: " + novelId);
+            System.out.println("📋 AI 서버에 전달할 구매 에피소드 ID들: " + java.util.Arrays.toString(isBoughtEpisodes));
+            System.out.println("📝 Query 내용: " + queryContent);
+
             // AI 서버 호출 (동기적으로 응답 대기)
             System.out.println("🤖 AI 서버에 요청 전송 중... queryId: " + queryId);
             QueryAnswerResponse response = apiService.chat(queryAsk)
