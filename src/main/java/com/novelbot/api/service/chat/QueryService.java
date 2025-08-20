@@ -27,6 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 @Service
@@ -90,20 +91,23 @@ public class QueryService {
         query.setQueryAnswer("처리중..."); // 기본값 설정
         Queries savedQuery = queryRepository.save(query);
 
-        // AI 서버 호출을 비동기로 처리
-        processAIResponse(savedQuery.getId(), chatId, queryContent, userId);
+        // AI 서버 호출을 별도 스레드에서 처리 (응답 대기)
+        CompletableFuture.runAsync(() -> {
+            processAIResponse(savedQuery.getId(), chatId, queryContent, userId);
+        });
 
         return savedQuery.getId();
 
     }
 
     /**
-     * AI 서버 응답을 비동기로 처리
+     * AI 서버 응답을 처리하고 웹소켓으로 전송
      */
-    @Async
     @Transactional
     public void processAIResponse(Integer queryId, Integer chatId, String queryContent, Integer userId) {
         try {
+            // 클라이언트가 구독할 시간을 확보하기 위해 잠시 대기
+            Thread.sleep(200); // 200ms 대기
             // 사용자와 채팅방 정보 다시 조회
             User user = userRepository.findById(userId).orElse(null);
             Chatroom chatroom = chatRepository.findById(chatId).orElse(null);
@@ -127,19 +131,25 @@ public class QueryService {
             queryAsk.setQueryContent(queryContent);
             queryAsk.setIsBoughtEpisodes(isBoughtEpisodes);
 
-            // AI 서버 호출
+            // AI 서버 호출 (동기적으로 응답 대기)
+            System.out.println("🤖 AI 서버에 요청 전송 중... queryId: " + queryId);
             QueryAnswerResponse response = apiService.chat(queryAsk)
                     .doOnError(ex -> {
+                        System.out.println("❌ AI 서버 오류: " + ex.getMessage());
                         // 에러 발생 시 질문 상태 업데이트
                         updateQueryWithError(queryId, "답변 생성 중 오류가 발생했습니다.");
                     })
-                    .block();
+                    .block(); // 완전히 응답을 받을 때까지 대기
+            
+            System.out.println("✅ AI 서버 응답 완료: " + (response != null ? "성공" : "실패"));
 
             if (response != null) {
                 // 성공적으로 응답 받음
                 updateQueryWithResponse(queryId, response);
                 
                 // WebSocket으로 클라이언트에게 결과 전송
+                System.out.println("🔔 WebSocket 메시지 전송: /topic/query/" + queryId);
+                System.out.println("📤 전송 데이터: " + response.getAnswerContent());
                 messagingTemplate.convertAndSend("/topic/query/" + queryId, response);
             } else {
                 // 응답이 null인 경우
