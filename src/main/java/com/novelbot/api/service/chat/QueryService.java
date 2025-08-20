@@ -28,6 +28,8 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
+import com.novelbot.api.utility.ParseJson;
+import com.novelbot.api.utility.WebSocketStreamHandler;
 
 @Service
 public class QueryService {
@@ -153,41 +155,29 @@ public class QueryService {
             apiService.chatStream(queryAsk)
                     .doOnNext(chunk -> {
                         System.out.println("📨 스트림 청크 수신: " + chunk.length() + "자");
-                        fullResponse.append(chunk);
+                        System.out.println("📝 청크 내용: " + chunk);
                         
-                        // 각 청크를 실시간으로 WebSocket을 통해 전송
-                        try {
-                            // 스트림 청크 형태로 전송
-                            java.util.Map<String, Object> streamData = new java.util.HashMap<>();
-                            streamData.put("message", chunk);
-                            streamData.put("isIncremental", true);
-                            streamData.put("isComplete", false);
-                            
-                            messagingTemplate.convertAndSend("/topic/query/" + queryId, streamData);
-                            System.out.println("✅ WebSocket 스트림 청크 전송 성공");
-                        } catch (Exception wsEx) {
-                            System.out.println("❌ WebSocket 스트림 청크 전송 실패: " + wsEx.getMessage());
+                        // JSON에서 텍스트만 추출
+                        String textContent = ParseJson.extractTextFromChunk(chunk);
+                        
+                        // 텍스트가 있는 경우에만 처리
+                        if (!textContent.isEmpty()) {
+                            fullResponse.append(textContent);
+                            // WebSocket으로 스트림 청크 전송
+                            WebSocketStreamHandler.sendStreamChunk(queryId, textContent, messagingTemplate);
+                        } else {
+                            System.out.println("📋 메타데이터 청크 무시: " + chunk.substring(0, Math.min(100, chunk.length())) + "...");
                         }
                     })
                     .doOnComplete(() -> {
                         System.out.println("✅ AI 서버 스트림 응답 완료");
                         String finalAnswer = fullResponse.toString();
                         
-                        // 최종 응답으로 질문 업데이트
+                        // 최종 응답으로 질문 업데이트 (텍스트만 저장)
                         updateQueryWithStreamResponse(queryId, finalAnswer);
                         
-                        // 스트림 완료 신호 전송
-                        try {
-                            java.util.Map<String, Object> completeData = new java.util.HashMap<>();
-                            completeData.put("message", finalAnswer);
-                            completeData.put("isIncremental", false);
-                            completeData.put("isComplete", true);
-                            
-                            messagingTemplate.convertAndSend("/topic/query/" + queryId, completeData);
-                            System.out.println("✅ WebSocket 스트림 완료 신호 전송 성공");
-                        } catch (Exception wsEx) {
-                            System.out.println("❌ WebSocket 스트림 완료 신호 전송 실패: " + wsEx.getMessage());
-                        }
+                        // WebSocket으로 스트림 완료 신호 전송
+                        WebSocketStreamHandler.sendStreamComplete(queryId, finalAnswer, messagingTemplate);
                     })
                     .doOnError(ex -> {
                         System.out.println("❌ AI 서버 스트림 오류: " + ex.getMessage());
@@ -195,18 +185,7 @@ public class QueryService {
                         updateQueryWithError(queryId, "답변 생성 중 오류가 발생했습니다: " + ex.getMessage());
                         
                         // WebSocket으로 에러 메시지 전송
-                        try {
-                            java.util.Map<String, Object> errorData = new java.util.HashMap<>();
-                            errorData.put("message", "답변 생성 중 오류가 발생했습니다: " + ex.getMessage());
-                            errorData.put("isIncremental", false);
-                            errorData.put("isComplete", true);
-                            errorData.put("isError", true);
-                            
-                            messagingTemplate.convertAndSend("/topic/query/" + queryId, errorData);
-                            System.out.println("✅ WebSocket 스트림 에러 메시지 전송 성공");
-                        } catch (Exception wsEx) {
-                            System.out.println("❌ WebSocket 스트림 에러 메시지 전송 실패: " + wsEx.getMessage());
-                        }
+                        WebSocketStreamHandler.sendStreamError(queryId, "답변 생성 중 오류가 발생했습니다: " + ex.getMessage(), messagingTemplate);
                     })
                     .subscribe(); // 스트림 구독 시작
 
@@ -218,18 +197,7 @@ public class QueryService {
             updateQueryWithError(queryId, errorMessage);
             
             // WebSocket으로 에러 메시지 전송
-            try {
-                java.util.Map<String, Object> errorData = new java.util.HashMap<>();
-                errorData.put("message", errorMessage);
-                errorData.put("isIncremental", false);
-                errorData.put("isComplete", true);
-                errorData.put("isError", true);
-                
-                messagingTemplate.convertAndSend("/topic/query/" + queryId, errorData);
-                System.out.println("✅ WebSocket 예외 에러 메시지 전송 성공");
-            } catch (Exception wsEx) {
-                System.out.println("❌ WebSocket 예외 에러 메시지 전송 실패: " + wsEx.getMessage());
-            }
+            WebSocketStreamHandler.sendError(queryId, errorMessage, messagingTemplate);
         }
     }
 
