@@ -151,7 +151,7 @@ public class APIService {
     public Mono<QueryAnswerResponse> chat(QueryAsk queryAsk) {
         return ensureAuthenticated()
                 .<QueryAnswerResponse>flatMap(token -> webClient.post()
-                        .uri(aiServerUrl + "/api/v1/episode/chat")
+                        .uri(aiServerUrl + "/api/v1/episode/chat/stream")
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("Authorization", "Bearer " + token)
                         .bodyValue(queryAsk)
@@ -172,7 +172,7 @@ public class APIService {
                                 .flatMap(newAccessToken -> {
                                     // 새로운 토큰으로 원래 요청 재시도
                                     return webClient.post()
-                                            .uri(aiServerUrl + "/api/v1/episode/chat")
+                                            .uri(aiServerUrl + "/api/v1/episode/chat/stream")
                                             .contentType(MediaType.APPLICATION_JSON)
                                             .header("Authorization", "Bearer " + newAccessToken)
                                             .bodyValue(queryAsk)

@@ -34,11 +34,23 @@ public class QueryController {
             @ApiResponse(responseCode = "404", description = "채팅방을 찾을 수 없음")
     })
     @PostMapping("/queries")
-    public ResponseEntity<Integer> createQuery(@PathVariable Integer chatId,
+    public ResponseEntity<?> createQuery(@PathVariable String chatId,
             @RequestBody QueryCreateRequest request,
             @RequestHeader("Authorization") String token) {
-        Integer queryId = queryService.createQueryAsync(chatId, request.getQueryContent(), token);
-        return ResponseEntity.status(HttpStatus.CREATED).body(queryId);
+        try {
+            // chatId 유효성 검증
+            if ("undefined".equals(chatId) || "null".equals(chatId)) {
+                return ResponseEntity.badRequest().body("채팅방 ID가 올바르지 않습니다. chatId: " + chatId);
+            }
+            
+            Integer parsedChatId = Integer.parseInt(chatId);
+            Integer queryId = queryService.createQueryAsync(parsedChatId, request.getQueryContent(), token);
+            return ResponseEntity.status(HttpStatus.CREATED).body(queryId);
+        } catch (NumberFormatException e) {
+            return ResponseEntity.badRequest().body("채팅방 ID는 숫자여야 합니다. chatId: " + chatId);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("질문 생성 중 오류가 발생했습니다: " + e.getMessage());
+        }
     }
 
     @Operation(summary = "질문 목록 조회", description = "채팅방의 모든 질문을 조회하는 API")
@@ -49,10 +61,22 @@ public class QueryController {
             @ApiResponse(responseCode = "404", description = "채팅방을 찾을 수 없음")
     })
     @GetMapping("/queries")
-    public ResponseEntity<List<QueryDto>> getQueries(@PathVariable Integer chatId,
+    public ResponseEntity<?> getQueries(@PathVariable String chatId,
             @RequestHeader("Authorization") String token) {
-        List<QueryDto> queries = queryService.getQueriesByChatId(chatId, token);
-        return ResponseEntity.ok(queries);
+        try {
+            // chatId 유효성 검증
+            if ("undefined".equals(chatId) || "null".equals(chatId)) {
+                return ResponseEntity.badRequest().body("채팅방 ID가 올바르지 않습니다. chatId: " + chatId);
+            }
+            
+            Integer parsedChatId = Integer.parseInt(chatId);
+            List<QueryDto> queries = queryService.getQueriesByChatId(parsedChatId, token);
+            return ResponseEntity.ok(queries);
+        } catch (NumberFormatException e) {
+            return ResponseEntity.badRequest().body("채팅방 ID는 숫자여야 합니다. chatId: " + chatId);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("질문 조회 중 오류가 발생했습니다: " + e.getMessage());
+        }
     }
 
     @Operation(summary = "질문 삭제", description = "특정 질문을 삭제하는 API")
