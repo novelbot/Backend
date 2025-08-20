@@ -115,14 +115,17 @@ public class QueryService {
                 return; // 데이터가 없으면 처리 중단
             }
 
-            // 채팅방에서 소설 ID 조회
+            // 채팅방에서 소설 ID와 현재 에피소드 정보 조회
             Integer novelId = chatroom.getNovel().getId();
+            Episode currentEpisode = chatroom.getEpisode();
+            Integer currentEpisodeNumber = currentEpisode.getEpisodeNumber();
             
-            // 구매한 에피소드 ID 수집
+            // 구매한 에피소드 ID 수집 (현재 회차보다 뒤의 에피소드는 제외)
             List<Purchase> purchaseList = purchaseRepository.findByUser(user);
             Integer[] isBoughtEpisodes = purchaseList.stream()
                     .filter(purchase -> purchase.getNovel().getId().equals(novelId))
                     .filter(purchase -> purchase.getIsPurchase()) // 실제로 구매한 것만 필터링
+                    .filter(purchase -> purchase.getEpisode().getEpisodeNumber() <= currentEpisodeNumber) // 현재 회차 이하만 포함
                     .map(purchase -> purchase.getEpisode().getId())
                     .toArray(Integer[]::new);
 
@@ -133,6 +136,7 @@ public class QueryService {
 
             // 구매한 에피소드 ID들 콘솔 출력
             System.out.println("📚 사용자 ID: " + userId + ", 소설 ID: " + novelId);
+            System.out.println("📖 현재 질문하고 있는 회차: " + currentEpisodeNumber + "회 (에피소드 ID: " + currentEpisode.getId() + ")");
             System.out.println("📋 AI 서버에 전달할 구매 에피소드 ID들: " + java.util.Arrays.toString(isBoughtEpisodes));
             System.out.println("📝 Query 내용: " + queryContent);
 
