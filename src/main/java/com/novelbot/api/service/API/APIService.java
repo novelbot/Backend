@@ -29,6 +29,7 @@ public class APIService {
     private String aiPassword;
     
     private String jwtToken; // JWT 토큰 저장
+    private String refreshToken; // Refresh 토큰 저장
 
     // GET 요청
     public Mono<String> getAPI(){
@@ -54,13 +55,44 @@ public class APIService {
                     try {
                         ObjectMapper mapper = new ObjectMapper();
                         JsonNode jsonNode = mapper.readTree(response);
-                        return jsonNode.get("access_token").asText();
+                        String accessToken = jsonNode.get("access_token").asText();
+                        String refreshTokenValue = jsonNode.has("refresh_token") ? jsonNode.get("refresh_token").asText() : null;
+                        this.refreshToken = refreshTokenValue; // Refresh 토큰 저장
+                        return accessToken;
                     } catch (Exception e) {
                         throw new RuntimeException("Failed to parse login response: " + e.getMessage());
                     }
                 })
                 .doOnNext(token -> this.jwtToken = token) // JWT 토큰 저장
                 .onErrorMap(ex -> new RuntimeException("Login failed: " + ex.getMessage()));
+    }
+    
+    // Refresh Token으로 토큰 재발급
+    public Mono<String> refreshAccessToken() {
+        if (refreshToken == null || refreshToken.isEmpty()) {
+            return Mono.error(new RuntimeException("No refresh token available"));
+        }
+        
+        return webClient.post()
+                .uri(aiServerUrl + "/api/v1/auth/refresh")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(Map.of("refresh_token", refreshToken))
+                .retrieve()
+                .bodyToMono(String.class)
+                .map(response -> {
+                    try {
+                        ObjectMapper mapper = new ObjectMapper();
+                        JsonNode jsonNode = mapper.readTree(response);
+                        String accessToken = jsonNode.get("access_token").asText();
+                        String refreshTokenValue = jsonNode.has("refresh_token") ? jsonNode.get("refresh_token").asText() : this.refreshToken;
+                        this.refreshToken = refreshTokenValue; // Refresh 토큰 업데이트
+                        return accessToken;
+                    } catch (Exception e) {
+                        throw new RuntimeException("Failed to parse refresh response: " + e.getMessage());
+                    }
+                })
+                .doOnNext(token -> this.jwtToken = token) // JWT 토큰 업데이트
+                .onErrorMap(ex -> new RuntimeException("Token refresh failed: " + ex.getMessage()));
     }
     
     // JWT 토큰으로 자동 로그인
@@ -85,15 +117,25 @@ public class APIService {
                 .onErrorResume(ex -> {
                     // 401 에러 시 토큰 재발급 후 재시도
                     if (ex.getMessage() != null && ex.getMessage().contains("401")) {
-                        this.jwtToken = null; // 토큰 초기화
-                        return login(aiUsername, aiPassword, false)
-                                .flatMap(newToken -> webClient.post()
-                                        .uri(aiServerUrl + "/api/v1/episode/chat")
-                                        .contentType(MediaType.APPLICATION_JSON)
-                                        .header("Authorization", "Bearer " + newToken)
-                                        .bodyValue(queryAsk)
-                                        .retrieve()
-                                        .bodyToMono(QueryAnswerResponse.class));
+                        this.jwtToken = null; // 기존 토큰 초기화
+                        
+                        // 1차: Refresh token으로 토큰 재발급 시도
+                        return refreshAccessToken()
+                                .onErrorResume(refreshEx -> {
+                                    // 2차: Refresh token 실패 시 일반 로그인으로 fallback
+                                    this.refreshToken = null; // Refresh 토큰도 초기화
+                                    return login(aiUsername, aiPassword, false);
+                                })
+                                .flatMap(newAccessToken -> {
+                                    // 새로운 토큰으로 원래 요청 재시도
+                                    return webClient.post()
+                                            .uri(aiServerUrl + "/api/v1/episode/chat")
+                                            .contentType(MediaType.APPLICATION_JSON)
+                                            .header("Authorization", "Bearer " + newAccessToken)
+                                            .bodyValue(queryAsk)
+                                            .retrieve()
+                                            .bodyToMono(QueryAnswerResponse.class);
+                                });
                     }
                     return Mono.error(new RuntimeException("Chat API call failed: " + ex.getMessage()));
                 });
