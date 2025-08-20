@@ -41,6 +41,9 @@ public class APIService {
 
     // 로그인 요청(POST) - JWT 토큰 획득 및 저장
     public Mono<String> login(String username, String password, boolean rememberMe) {
+        System.out.println("🔐 AI 서버 로그인 시도: " + aiServerUrl + "/api/v1/auth/login");
+        System.out.println("👤 사용자명: " + username);
+        
         return webClient.post()
                 .uri(aiServerUrl + "/api/v1/auth/login")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -50,49 +53,89 @@ public class APIService {
                         "remember_me", rememberMe
                 ))
                 .retrieve()
+                .onStatus(status -> !status.is2xxSuccessful(), clientResponse -> {
+                    return clientResponse.bodyToMono(String.class)
+                            .map(errorBody -> {
+                                System.out.println("❌ AI 서버 로그인 실패 - 상태코드: " + clientResponse.statusCode());
+                                System.out.println("❌ 에러 응답: " + errorBody);
+                                return new RuntimeException("AI 서버 로그인 실패 [" + clientResponse.statusCode() + "]: " + errorBody);
+                            });
+                })
                 .bodyToMono(String.class)
                 .map(response -> {
                     try {
+                        System.out.println("✅ AI 서버 로그인 응답 수신: " + response.length() + "자");
                         ObjectMapper mapper = new ObjectMapper();
                         JsonNode jsonNode = mapper.readTree(response);
                         String accessToken = jsonNode.get("access_token").asText();
                         String refreshTokenValue = jsonNode.has("refresh_token") ? jsonNode.get("refresh_token").asText() : null;
                         this.refreshToken = refreshTokenValue; // Refresh 토큰 저장
+                        System.out.println("✅ 토큰 저장 완료 - Access Token: " + accessToken.substring(0, Math.min(20, accessToken.length())) + "...");
                         return accessToken;
                     } catch (Exception e) {
+                        System.out.println("❌ 로그인 응답 파싱 실패: " + e.getMessage());
                         throw new RuntimeException("Failed to parse login response: " + e.getMessage());
                     }
                 })
                 .doOnNext(token -> this.jwtToken = token) // JWT 토큰 저장
-                .onErrorMap(ex -> new RuntimeException("Login failed: " + ex.getMessage()));
+                .onErrorMap(ex -> {
+                    System.out.println("💥 로그인 최종 오류: " + ex.getMessage());
+                    return new RuntimeException("Login failed: " + ex.getMessage());
+                });
     }
     
     // Refresh Token으로 토큰 재발급
     public Mono<String> refreshAccessToken() {
         if (refreshToken == null || refreshToken.isEmpty()) {
+            System.out.println("❌ Refresh Token이 없습니다");
             return Mono.error(new RuntimeException("No refresh token available"));
         }
+        
+        System.out.println("🔄 Refresh Token으로 토큰 재발급 시도: " + aiServerUrl + "/api/v1/auth/refresh");
+        System.out.println("🎫 Refresh Token: " + refreshToken.substring(0, Math.min(20, refreshToken.length())) + "...");
         
         return webClient.post()
                 .uri(aiServerUrl + "/api/v1/auth/refresh")
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(Map.of("refresh_token", refreshToken))
                 .retrieve()
+                .onStatus(status -> !status.is2xxSuccessful(), clientResponse -> {
+                    return clientResponse.bodyToMono(String.class)
+                            .map(errorBody -> {
+                                System.out.println("❌ Refresh Token 재발급 실패 - 상태코드: " + clientResponse.statusCode());
+                                System.out.println("❌ 에러 응답: " + errorBody);
+                                return new RuntimeException("Refresh Token 재발급 실패 [" + clientResponse.statusCode() + "]: " + errorBody);
+                            });
+                })
                 .bodyToMono(String.class)
                 .map(response -> {
                     try {
+                        System.out.println("✅ Refresh Token 응답 수신: " + response.length() + "자");
                         ObjectMapper mapper = new ObjectMapper();
                         JsonNode jsonNode = mapper.readTree(response);
-                        String accessToken = jsonNode.get("access_token").asText();
-                        String refreshTokenValue = jsonNode.has("refresh_token") ? jsonNode.get("refresh_token").asText() : this.refreshToken;
-                        this.refreshToken = refreshTokenValue; // Refresh 토큰 업데이트
-                        return accessToken;
+                        
+                        // 새로운 access_token 추출
+                        String newAccessToken = jsonNode.get("access_token").asText();
+                        
+                        // 새로운 refresh_token 추출 (없으면 기존 값 유지)
+                        String newRefreshToken = jsonNode.has("refresh_token") ? 
+                            jsonNode.get("refresh_token").asText() : this.refreshToken;
+                        
+                        // 토큰들 업데이트
+                        this.jwtToken = newAccessToken;     // access_token -> jwtToken
+                        this.refreshToken = newRefreshToken; // refresh_token -> refreshToken
+                        
+                        System.out.println("✅ 토큰 재발급 완료 - New Access Token: " + newAccessToken.substring(0, Math.min(20, newAccessToken.length())) + "...");
+                        return newAccessToken;
                     } catch (Exception e) {
+                        System.out.println("❌ Refresh Token 응답 파싱 실패: " + e.getMessage());
                         throw new RuntimeException("Failed to parse refresh response: " + e.getMessage());
                     }
                 })
-                .doOnNext(token -> this.jwtToken = token) // JWT 토큰 업데이트
-                .onErrorMap(ex -> new RuntimeException("Token refresh failed: " + ex.getMessage()));
+                .onErrorMap(ex -> {
+                    System.out.println("💥 Refresh Token 최종 오류: " + ex.getMessage());
+                    return new RuntimeException("Token refresh failed: " + ex.getMessage());
+                });
     }
     
     // JWT 토큰으로 자동 로그인
