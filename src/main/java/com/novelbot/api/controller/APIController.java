@@ -1,16 +1,17 @@
 package com.novelbot.api.controller;
 
-import com.novelbot.api.dto.API.QueryAsk;
-import com.novelbot.api.service.API.APIService;
+import java.util.List;
+import java.util.Map;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-import reactor.core.publisher.Mono;
 
-import java.util.List;
-import java.util.Map;
+import com.novelbot.api.dto.API.QueryAsk;
+import com.novelbot.api.service.API.APIService;
+
+import reactor.core.publisher.Mono;
 
 @RestController
 public class APIController {
@@ -36,10 +37,13 @@ public class APIController {
                 .onErrorResume(ex -> Mono.just(ResponseEntity.status(500).body(ex.getMessage())));
     }
 
-    @PostMapping("/api/v1/episode/chat")
+    @PostMapping("/api/v1/episode/chat/stream")
     public Mono<ResponseEntity<String>> chat(@RequestBody Map<String, Object> chatRequest) {
         String message = (String) chatRequest.get("message");
-        List<Integer> episodeIds = (List<Integer>) chatRequest.get("episode_ids");
+        List<?> episodeIdsRaw = (List<?>) chatRequest.get("episode_ids");
+        List<Integer> episodeIds = episodeIdsRaw != null
+            ? episodeIdsRaw.stream().map(e -> Integer.valueOf(e.toString())).toList()
+            : null;
         String conversationId = (String) chatRequest.get("conversation_id");
         Boolean useConversationContext = (Boolean) chatRequest.getOrDefault("use_conversation_context", false);
 
