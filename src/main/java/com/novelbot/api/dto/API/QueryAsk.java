@@ -20,4 +20,7 @@ public class QueryAsk {
     
     @JsonProperty("use_conversation_context")
     private boolean isUsingContext; //이전의 질문의 맥락을 이어갈 것인지
+
+    @JsonProperty("max_tokens")
+    private Integer maxTokens = 2000;
 }
