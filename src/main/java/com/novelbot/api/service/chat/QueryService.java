@@ -128,7 +128,7 @@ public class QueryService {
             Integer currentEpisodeNumber = currentEpisode.getEpisodeNumber();
             
             // 구매한 에피소드 ID 수집 (현재 회차보다 뒤의 에피소드는 제외)
-            List<Purchase> purchaseList = purchaseRepository.findByUser(user);
+            List<Purchase> purchaseList = purchaseRepository.findByUserWithEpisodeAndNovel(user);
             Integer[] isBoughtEpisodes = purchaseList.stream()
                     .filter(purchase -> purchase.getNovel().getId().equals(novelId))
                     .filter(purchase -> purchase.getIsPurchase()) // 실제로 구매한 것만 필터링
