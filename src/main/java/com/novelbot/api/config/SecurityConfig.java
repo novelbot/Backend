@@ -33,6 +33,7 @@ public class SecurityConfig {
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .requestMatchers("/novels/**").permitAll() // 소설 조회 API들
                         .requestMatchers("/episodes/**").permitAll() // 에피소드 조회 API들
+                        .requestMatchers("/ws/**").permitAll() // WebSocket 연결 허용
                         // 인증이 필요한 엔드포인트들
                         .requestMatchers("/users/user").authenticated() // 사용자 정보 조회/수정
                         .requestMatchers("/chatrooms/**").authenticated() // 채팅방 관련
