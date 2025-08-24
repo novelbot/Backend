@@ -21,7 +21,7 @@ public class Chatroom {
     @Column(name = "chat_title")
     private String chatTitle;
 
-    @Column(name = "created_at", nullable = false, columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP")
+    @Column(name = "created_at", nullable = false)
     private java.sql.Timestamp createdAt;
 
     // 사용자 - 채팅방 일대다 매핑 카디널리티

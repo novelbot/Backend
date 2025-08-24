@@ -23,7 +23,7 @@ public class Queries {
     @Size(max = 255, message = "쿼리 답변은 255자를 초과할 수 없습니다.")
     private String queryAnswer;
 
-    @Column(name = "asked_at", nullable = false, columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP")
+    @Column(name = "asked_at", nullable = false)
     private java.sql.Timestamp askedAt;
 
     @Column(name = "page_number")
