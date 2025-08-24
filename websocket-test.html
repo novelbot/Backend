@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>WebSocket 테스트</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.6.1/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+</head>
+<body>
+    <h1>NovelBot WebSocket 테스트</h1>
+    
+    <div>
+        <h3>연결 상태</h3>
+        <p id="connection-status">연결 안됨</p>
+        <button onclick="connect()">WebSocket 연결</button>
+        <button onclick="disconnect()">연결 해제</button>
+    </div>
+
+    <div>
+        <h3>채팅방 구독</h3>
+        <input type="number" id="chatId" placeholder="채팅방 ID" value="1">
+        <button onclick="subscribeToChatroom()">채팅방 구독</button>
+    </div>
+
+    <div>
+        <h3>질문 생성 (시뮬레이션)</h3>
+        <input type="text" id="queryContent" placeholder="질문 내용" value="주인공이 누구야?">
+        <button onclick="sendTestMessage()">테스트 메시지 전송</button>
+    </div>
+
+    <div>
+        <h3>받은 메시지</h3>
+        <div id="messages" style="border: 1px solid #ccc; height: 300px; overflow-y: scroll; padding: 10px;"></div>
+    </div>
+
+    <script>
+        let stompClient = null;
+        let currentChatId = null;
+
+        function connect() {
+            const socket = new SockJS('http://localhost:8080/ws');
+            stompClient = Stomp.over(socket);
+            
+            stompClient.connect({}, function(frame) {
+                document.getElementById('connection-status').textContent = '연결됨';
+                addMessage('WebSocket 연결 성공: ' + frame);
+                console.log('Connected: ' + frame);
+            }, function(error) {
+                document.getElementById('connection-status').textContent = '연결 실패';
+                addMessage('WebSocket 연결 실패: ' + error);
+                console.log('Connection failed: ' + error);
+            });
+        }
+
+        function disconnect() {
+            if (stompClient !== null) {
+                stompClient.disconnect();
+                stompClient = null;
+            }
+            document.getElementById('connection-status').textContent = '연결 해제됨';
+            addMessage('WebSocket 연결 해제');
+        }
+
+        function subscribeToChatroom() {
+            if (stompClient === null) {
+                addMessage('먼저 WebSocket에 연결하세요!');
+                return;
+            }
+
+            const chatId = document.getElementById('chatId').value;
+            currentChatId = chatId;
+
+            stompClient.subscribe('/topic/chat/' + chatId, function(message) {
+                const response = JSON.parse(message.body);
+                addMessage('AI 답변 받음: ' + JSON.stringify(response, null, 2));
+                
+                // 답변 표시
+                displayAIResponse(response);
+            });
+
+            addMessage('채팅방 ' + chatId + ' 구독 완료');
+        }
+
+        function sendTestMessage() {
+            if (!currentChatId) {
+                addMessage('먼저 채팅방을 구독하세요!');
+                return;
+            }
+
+            const queryContent = document.getElementById('queryContent').value;
+            
+            // 실제 API 호출 시뮬레이션 (WebSocket으로 직접 테스트 메시지 전송)
+            if (stompClient !== null) {
+                const testResponse = {
+                    conversation_id: 'test-conv-123',
+                    message: '테스트 답변입니다: ' + queryContent + '에 대한 답변',
+                    episodes_discussed: [1, 2, 3]
+                };
+
+                // WebSocket으로 테스트 메시지 전송
+                stompClient.send('/topic/chat/' + currentChatId, {}, JSON.stringify(testResponse));
+                addMessage('테스트 메시지 전송: ' + queryContent);
+            }
+        }
+
+        function displayAIResponse(response) {
+            const messagesDiv = document.getElementById('messages');
+            const responseDiv = document.createElement('div');
+            responseDiv.style.backgroundColor = '#e3f2fd';
+            responseDiv.style.padding = '10px';
+            responseDiv.style.margin = '5px 0';
+            responseDiv.style.borderRadius = '5px';
+            
+            responseDiv.innerHTML = `
+                <strong>AI 답변:</strong><br>
+                <p>${response.message}</p>
+                <small>대화 ID: ${response.conversation_id}</small><br>
+                <small>참조 에피소드: ${response.episodes_discussed ? response.episodes_discussed.join(', ') : '없음'}</small>
+            `;
+            
+            messagesDiv.appendChild(responseDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        function addMessage(message) {
+            const messagesDiv = document.getElementById('messages');
+            const messageDiv = document.createElement('div');
+            messageDiv.style.padding = '5px';
+            messageDiv.style.borderBottom = '1px solid #eee';
+            messageDiv.textContent = new Date().toLocaleTimeString() + ': ' + message;
+            messagesDiv.appendChild(messageDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+    </script>
+</body>
+</html>

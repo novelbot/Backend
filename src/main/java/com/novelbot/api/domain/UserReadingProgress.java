@@ -33,7 +33,7 @@ public class UserReadingProgress {
     @Column(name = "last_read_page")
     private Integer lastReadPage;
 
-    @Column(name = "updated_at", nullable = false, columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP")
+    @Column(name = "updated_at", nullable = false)
     private java.sql.Timestamp updatedAt;
 }
 

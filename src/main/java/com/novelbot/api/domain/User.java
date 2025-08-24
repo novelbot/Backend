@@ -30,7 +30,7 @@ public class User {
     @Column(name = "user_email", nullable = false, unique = true)
     private String userEmail;
 
-    @Column(name = "created_at", nullable = false, columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP")
+    @Column(name = "created_at", nullable = false)
     private java.sql.Timestamp createdAt;
 
     @Column(name = "user_role", nullable = false)

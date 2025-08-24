@@ -70,11 +70,42 @@ git clone [repository-url]
 cd novelBot/Backend
 ```
 
-### 2. 환경 설정
-`src/main/resources/application-local.properties` 파일을 생성하고 다음 내용을 추가:
+### 2. 로컬 개발 환경 설정
+
+#### Option 1: H2 인메모리 데이터베이스 (간단한 로컬 테스트용)
+`application-local.properties` 파일을 다음과 같이 수정하여 H2 데이터베이스를 사용할 수 있습니다:
 
 ```properties
-# 데이터베이스 설정
+# H2 인메모리 데이터베이스
+spring.datasource.url=jdbc:h2:mem:novelbot
+spring.datasource.driver-class-name=org.h2.Driver
+spring.datasource.username=sa
+spring.datasource.password=
+spring.h2.console.enabled=true
+
+# JPA 설정
+spring.jpa.hibernate.ddl-auto=create-drop
+spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.H2Dialect
+spring.flyway.enabled=false
+
+# JWT 설정 (테스트용)
+jwt.secret=local-test-secret-key-for-development-only
+jwt.expiration=86400
+
+# Redis 비활성화 (선택사항)
+spring.autoconfigure.exclude=org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration
+
+# AI 서버 설정 (실제 서버 또는 로컬 모킹)
+ai.server.url=http://localhost:8000
+ai.server.username=admin
+ai.server.password=admin123
+```
+
+#### Option 2: MySQL + Redis (완전한 로컬 환경)
+완전한 로컬 환경을 구축하려면 다음과 같이 설정:
+
+```properties
+# MySQL 데이터베이스
 spring.datasource.url=jdbc:mysql://localhost:3306/novelbot
 spring.datasource.username=your_username
 spring.datasource.password=your_password
@@ -84,28 +115,66 @@ spring.data.redis.host=localhost
 spring.data.redis.port=6379
 
 # JWT 설정
-jwt.secret=your-secret-key
+jwt.secret=your-secret-key-change-in-production
 jwt.expiration=86400000
 
-# Google Cloud Storage 설정
+# Google Cloud Storage 설정 (선택사항)
 gcs.bucket-name=your-bucket-name
 gcs.credentials-path=path/to/your/service-account.json
 
 # AI 서버 설정
 ai.server.url=http://your-ai-server-url
+ai.server.username=your_username
+ai.server.password=your_password
 ```
 
 ### 3. 데이터베이스 설정
-MySQL에 `novelbot` 데이터베이스를 생성:
-```sql
+
+#### H2 데이터베이스 (Option 1)
+별도 설정 불필요. 애플리케이션 실행 시 자동으로 인메모리 데이터베이스가 생성됩니다.
+- H2 콘솔: http://localhost:8080/h2-console
+
+#### MySQL 데이터베이스 (Option 2)
+```bash
+# MySQL 서버 설치 (macOS)
+brew install mysql
+brew services start mysql
+
+# 데이터베이스 생성
+mysql -u root -p
 CREATE DATABASE novelbot CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE USER 'novelbot_user'@'localhost' IDENTIFIED BY 'password';
+GRANT ALL PRIVILEGES ON novelbot.* TO 'novelbot_user'@'localhost';
+FLUSH PRIVILEGES;
+```
+
+#### Redis 설정 (Option 2 - 선택사항)
+```bash
+# Redis 서버 설치 및 실행 (macOS)
+brew install redis
+brew services start redis
 ```
 
 ### 4. 애플리케이션 실행
 
 #### 개발 환경 실행
 ```bash
+# H2 데이터베이스로 실행
 ./gradlew bootRun --args='--spring.profiles.active=local'
+
+# 또는 직접 Java로 실행
+./gradlew bootJar
+java -jar -Dspring.profiles.active=local build/libs/novelbot-api-0.0.1-SNAPSHOT.jar
+```
+
+#### 권한 문제 시 (macOS/Linux)
+```bash
+chmod +x gradlew
+```
+
+#### Windows 환경
+```cmd
+gradlew.bat bootRun --args="--spring.profiles.active=local"
 ```
 
 #### 테스트 실행
@@ -116,6 +185,59 @@ CREATE DATABASE novelbot CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 #### 빌드
 ```bash
 ./gradlew build
+```
+
+## 🚨 로컬 실행 체크리스트
+
+### 실행 전 확인사항
+1. ✅ Java 17 설치 확인: `java -version`
+2. ✅ 프로젝트 클론 및 디렉토리 이동
+3. ✅ Gradle wrapper 권한 설정: `chmod +x gradlew` (macOS/Linux)
+4. ✅ `application-local.properties` 파일 생성 및 설정
+5. ✅ 데이터베이스 설정 (H2는 자동, MySQL은 수동 설정)
+
+### 간단한 로컬 실행 (H2 사용)
+```bash
+# 1. 프로젝트 클론
+git clone [repository-url]
+cd novelBot/Backend
+
+# 2. Gradle wrapper 권한 설정 (macOS/Linux)
+chmod +x gradlew
+
+# 3. application-local.properties 파일이 이미 존재하므로 바로 실행
+./gradlew bootRun --args='--spring.profiles.active=local'
+```
+
+### 실행 후 접속 가능한 URL
+- **메인 애플리케이션**: http://localhost:8080
+- **API 문서 (Swagger)**: http://localhost:8080/swagger-ui.html
+- **H2 콘솔**: http://localhost:8080/h2-console
+- **WebSocket 테스트**: http://localhost:8080/websocket-test.html
+- **헬스 체크**: http://localhost:8080/actuator/health
+
+### 문제 해결
+
+#### 포트 8080이 이미 사용 중인 경우
+```bash
+# 다른 포트로 실행
+./gradlew bootRun --args='--spring.profiles.active=local --server.port=8081'
+```
+
+#### 권한 오류 (macOS/Linux)
+```bash
+chmod +x gradlew
+```
+
+#### Windows에서 실행
+```cmd
+gradlew.bat bootRun --args="--spring.profiles.active=local"
+```
+
+#### 메모리 부족 오류
+```bash
+export JAVA_OPTS="-Xmx2G -Xms1G"
+./gradlew bootRun --args='--spring.profiles.active=local'
 ```
 
 ### 5. API 문서 확인

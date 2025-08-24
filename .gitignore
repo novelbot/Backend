@@ -20,10 +20,14 @@ out/
 /src/test/resources/*
 /src/test/java/*
 
-# Local configuration files
-application-*.properties
+# Local configuration files (로컬 테스트용 파일은 제외)
+application-prod.properties
+application-staging.properties
 secrets/
 *.env
+
+# 로컬 테스트용 파일은 포함 (개발자들이 쉽게 테스트할 수 있도록)
+!application-local.properties
 
 # Other
 .DS_Store
@@ -31,7 +35,9 @@ secrets/
 DBController.java
 *.xlsx
 
-# WebSocket test files (temporary)
-websocket-test.html
+# 로컬 개발 및 테스트용 파일들 (포함시킴)
+# websocket-test.html - 로컬에서 WebSocket 테스트용
+# test-data.sql - 로컬 H2 데이터베이스 초기 데이터
+
+# 개발용 컨트롤러만 제외 (프로덕션에는 불필요)
 src/main/java/com/novelbot/api/controller/WebSocketTestController.java
-test-data.sql
